@@ -1,0 +1,34 @@
+name: kilo
+version: 0.2.3
+
+authors:
+  - Tarek Ghaleb <tghaleb@users.noreply.github.com>
+
+targets:
+  kilo:
+    main: src/kilo.cr
+
+crystal: 1.2.0
+
+license: MIT
+
+dependencies:
+  comandante:
+    github: tghaleb/comandante
+  comandante-msgpack:
+    github: tghaleb/comandante-msgpack
+  comandante-zstd:
+    github: tghaleb/comandante-zstd
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3
+    #  msgpack:
+    #    github: crystal-community/msgpack-crystal
+  zstd:
+    github: didactic-drunk/zstd.cr
+  celestine:
+    github: celestinecr/celestine
+  ishi:
+    github: toddsundsted/ishi
+  rucksack:
+    github: busyloop/rucksack
+ 

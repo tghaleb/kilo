@@ -1,0 +1,8 @@
+/lib/
+/bin/
+/.shards/
+*.dwarf
+.rucksack*
+.vscode
+/site/
+.kilo

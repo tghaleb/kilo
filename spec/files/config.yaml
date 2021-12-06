@@ -1,0 +1,6 @@
+---
+corpi_dir: "./"
+corpus: "test"
+ncr_dir: ncr
+top_n_bigrams: 97.0
+characters: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~@#$%^&*()-_=+[{]}'"\|,<.>/?€

@@ -1,0 +1,7 @@
+#!/bin/sh
+# for corpi downloaded from leipzig uni
+if [ $# -lt 1 ]; then
+    echo "Need At least 1 arg"
+    exit
+fi
+sed -r 's/^[0-9]+\s+//' $1

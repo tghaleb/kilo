@@ -1,0 +1,20 @@
+site_name: Kilo
+
+theme:
+  name: windmill
+  highlightjs: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: crystal
+      watch: [src]
+
+
+markdown_extensions:
+  - pymdownx.highlight
+  - deduplicate-toc
+
+nav:
+  - Home: index.md
+  - Philosophy: philosophy.md

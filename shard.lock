@@ -1,0 +1,46 @@
+version: 2.0
+shards:
+  celestine:
+    git: https://github.com/celestinecr/celestine.git
+    version: 0.8.3alpha+git.commit.75f1b0dc5b636df995e71a89a176dbf88fb64c71
+
+  comandante:
+    git: https://github.com/tghaleb/comandante.git
+    version: 0.1.2
+
+  comandante-msgpack:
+    git: https://github.com/tghaleb/comandante-msgpack.git
+    version: 0.1.2
+
+  comandante-zstd:
+    git: https://github.com/tghaleb/comandante-zstd.git
+    version: 0.1.1
+
+  db:
+    git: https://github.com/crystal-lang/crystal-db.git
+    version: 0.10.1
+
+  ishi:
+    git: https://github.com/toddsundsted/ishi.git
+    version: 0.7.5
+
+  msgpack:
+    git: https://github.com/crystal-community/msgpack-crystal.git
+    version: 1.2.0
+
+  myhtml:
+    git: https://github.com/kostya/myhtml.git
+    version: 1.5.8
+
+  rucksack:
+    git: https://github.com/busyloop/rucksack.git
+    version: 2.0.0
+
+  sqlite3:
+    git: https://github.com/crystal-lang/crystal-sqlite3.git
+    version: 0.18.0
+
+  zstd:
+    git: https://github.com/didactic-drunk/zstd.cr.git
+    version: 1.1.2
+

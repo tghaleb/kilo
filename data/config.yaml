@@ -1,0 +1,18 @@
+---
+# path to the corpus to use
+corpus: "corpi/eng_web_2014_1M-sentences.txt.clean.zst"
+
+balance_delta: 0.06 
+alternation_min: 0.68
+alternation_max: 0.99
+
+# Higher will generate longer typing lessons
+typing_word_limit: 100
+short_typing_word_limit: 10
+
+# Text direction of layout
+ltr: true
+
+# basic qwerty like very conservative(need to be 32 characters long)
+characters: abcdefghijklmnopqrstuvwxyz-',;./
+
