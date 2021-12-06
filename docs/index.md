@@ -94,7 +94,7 @@ cd my-project
 This will create the directory `my-project` with default directory
 structure and copy config files to it.
 
-Download a corpus to use, <https://wortschatz.uni-leipzig.de/en/download/> 
+Download a corpus to use. <https://wortschatz.uni-leipzig.de/en/download/> 
 has some good ones, or get one from somewhere else. After downloading it
 you will want to clean it. Edit `config/config.yaml`
 for your project and set the path to your corpus.
@@ -103,11 +103,19 @@ To perform frequency analysis on your corpus,
 
 ```console
 kilo freq
-kilo freq -d
+kilo freq -a
 ```
 
-It should create `.kilo/corpus.messagpack`. The `-d` option will 
+It should create `.kilo/corpus.messagpack`. The `-a` option will 
 print the frequency data for you to inspect.
+
+You can also, skip downloading a corpus and import the frequency data
+from a bigrams file like the one provided in your `data/` directory.
+
+
+```console
+kilo freq -f path-to-bigrams-file
+```
 
 Now you're ready to do some work, Assuming you want to create your own
 layout using default settings
@@ -129,13 +137,11 @@ done, you can export fast filter data,
 kilo gen -e > fast_filter.yaml
 ```
 
-Inspect the file and move it to `config/` directory,
-
 Now if you decided to generate this data again with the same settings
 for any reason, you can run
 
 ```console
-kilo gen --fast
+kilo gen --fast path-to-fast-filter
 ```
 
 and it will be somewhat faster.
@@ -169,19 +175,19 @@ You can then query selecting the ones you like. By score or other
 criteria.
 
 ```console
-kilo query top100.db --limit 10 --sql sql/by-owtward.sql --layouts >
-top100-outwards.txt
+kilo query top100.db --limit 10 --sql sql/by-hand.sql --layouts >
+top100-hand.txt
 ```
 
 and compare them together,
 
 ```console
-kilo eval top100-outwards.txt --out top100-outwards.db --score
+kilo eval top100-hand.txt --out top100-hand.db --score
 scripts/score.rb
-kilo compare top100-outwards.db
+kilo compare top100-hand.db
 ```
 
-To export svg, xkb config and typing lessons
+To export SVG, xkb config and typing lessons
 
 ```console
 kilo export -T top100-outwards.txt
