@@ -1,6 +1,6 @@
 # kilo
 
-A tool to generate, analyse, and compare keyboard layouts.
+A tool to generate, analyze, and compare keyboard layouts.
 
 [![GitHub release](https://img.shields.io/github/release/tghaleb/kilo.svg)](https://github.com/tghaleb/kilo/releases)
 

@@ -1,6 +1,6 @@
 # Kilo
 
-A tool to generate, analyse, and compare keyboard layouts.
+A tool to generate, analyze, and compare keyboard layouts.
 
 ## About
 
@@ -16,7 +16,7 @@ create your own custom layout that caters to your needs. There are a lot
 of different views on what makes a good layout, this tool, like other
 tools, takes sides and follows a certain philosophy. But you can
 customize it in many ways using configuration files in addition to user
-sql statements and scoring scripts. Still, before you embark on
+SQL statements and scoring scripts. Still, before you embark on
 designing your own layout, or selecting one from what is available. You
 should decide on which factors are more important in a layout
 and the weights to assign these factors. 
@@ -156,10 +156,10 @@ top100.db --limit 5 sql/improve-*
 
 This will improve the left and right side of the layout. It does this
 by placing the characters according to the least positional effort and then
-trying all permutations that yield the same effort score.  The sql
+trying all permutations that yield the same effort score.  The SQL
 files are used to make selections of the best layouts from left/right databases 
 to be combine into the final layouts. The `limit` is used
-with each sql select.
+with each SQL select.
 
 ```console
 kilo query top100.db --limit 50 --sql sql/by-score.sql | less
@@ -206,9 +206,9 @@ taste. Scoring scripts can be used with `eval`, `improve`, or `query`.
 kilo query name.db  --sql sql/by-jumps.sql --score scripts/score1.rb
 ```
 
-### Sql
+### SQL
 
-The provided sql files are only examples of what you can do. You will
+The provided SQL files are only examples of what you can do. You will
 probably need to change them at one point, or add your own custom ones.
 
 ### Improving layouts
@@ -244,7 +244,7 @@ better overall same hand scores.
 
 When improving the higher the limit the more time it will take. A
 limit of 5 or 10 seems to work fine. Always start with a
-`pre-slow-improve` sql first and then select layouts to do with the slow
+`pre-slow-improve` SQL first and then select layouts to do with the slow
 option. For example,
 
 ```console
