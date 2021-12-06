@@ -4,7 +4,7 @@ A tool to generate, analyse, and compare keyboard layouts.
 
 [![GitHub release](https://img.shields.io/github/release/tghaleb/kilo.svg)](https://github.com/tghaleb/kilo/releases)
 
-![Screen Shot](images/kilo.png)
+![Screen Shot](docs/images/kilo.png)
 
 ## Documentation
 
