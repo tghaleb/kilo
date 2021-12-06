@@ -4,7 +4,7 @@ module Kilo
   class Compare < Command
     include Constants
 
-    EXTRA_CHARTS = Set.new([:indices, :middles, :rings, :pinkies])
+    EXTRA_CHARTS = Set.new([:same_both, :indices, :middles, :rings, :pinkies])
 
     @db = DB_Helper.new
     @sql = SELECT_ALL
@@ -81,6 +81,7 @@ module Kilo
       outward = Array(Float64).new
       jumps = Array(Float64).new
       same_finger_rp = Array(Float64).new
+      same_finger_both = Array(Float64).new
       positional_effort = Array(Float64).new
       score = Array(Float64).new
       alternation = Array(Float64).new
@@ -100,6 +101,7 @@ module Kilo
         outward << layout.outward/100
         jumps << layout.jumps/100
         same_finger_rp << layout.same_finger_rp/100
+        same_finger_both << (layout.same_finger_rp/100) + (layout.same_finger_im/100)
         positional_effort << layout.positional_effort/100
         alternation << layout.alternation/100
         text_direction << layout.text_direction/100
@@ -121,6 +123,7 @@ module Kilo
         jumps:             jumps,
         outward:           outward,
         same_finger_rp:    same_finger_rp,
+        same_finger_both:  same_finger_both,
         same_hand_effort:  same_hand_effort,
         positional_effort: positional_effort,
         indices:           indices,

@@ -1,5 +1,7 @@
  TODO
 
+- export extra remove what is not needed and add combined same_finger
+- add a .gitignore to init 
 - fix sql and improve hard coded values
 - ar maybe middle 2800 and jumps 150
 - deal with `not a file` if nothing was selected in improve

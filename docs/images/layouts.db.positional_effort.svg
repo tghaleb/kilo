@@ -87,7 +87,7 @@
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M341.0,444.0 L341.0,435.0 M341.0,18.1 L341.0,27.1  '/>	<g transform="translate(341.0,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M337.8,444.0 L337.8,435.0 M337.8,18.1 L337.8,27.1  '/>	<g transform="translate(337.8,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
 		<text></text>
 	</g>
 </g>
@@ -102,109 +102,126 @@
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-	<g id="gnuplot_plot_1" ><title>kilo57</title>
+	<g id="gnuplot_plot_1" ><title>candidate51-0-6873</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(507.9,40.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
-		<text><tspan font-family="Arial" >kilo57</tspan></text>
+		<text><tspan font-family="Arial" >candidate51-0-6873</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb( 89, 124, 174)' fill-opacity = '0.500000' points = '516.2,40.6 558.4,40.6 558.4,31.6 516.2,31.6 '/>
+		<polygon fill = 'rgb(254,  94,  39)' fill-opacity = '0.500000' points = '516.2,40.6 558.4,40.6 558.4,31.6 516.2,31.6 '/>
 	</g>
-	<path stroke='rgb( 89, 124, 174)'  d='M516.2,40.6 L558.4,40.6 L558.4,31.6 L516.2,31.6 L516.2,40.6 Z  '/></g>
+	<path stroke='rgb(254,  94,  39)'  d='M516.2,40.6 L558.4,40.6 L558.4,31.6 L516.2,31.6 L516.2,40.6 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb( 89, 124, 174)' fill-opacity = '0.500000' points = '63.6,444.0 98.4,444.0 98.4,262.5 63.6,262.5 '/>
+		<polygon fill = 'rgb(254,  94,  39)' fill-opacity = '0.500000' points = '63.6,444.0 93.3,444.0 93.3,256.9 63.6,256.9 '/>
 	</g>
-	<path stroke='rgb( 89, 124, 174)'  d='M63.6,444.0 L63.6,262.6 L98.3,262.6 L98.3,444.0 L63.6,444.0 Z  '/></g>
+	<path stroke='rgb(254,  94,  39)'  d='M63.6,444.0 L63.6,257.0 L93.2,257.0 L93.2,444.0 L63.6,444.0 Z  '/></g>
 	</g>
-	<g id="gnuplot_plot_2" ><title>Colemak</title>
+	<g id="gnuplot_plot_2" ><title>candidate45-0-19253</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(507.9,58.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+		<text><tspan font-family="Arial" >candidate45-0-19253</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g stroke='none' shape-rendering='crispEdges'>
+		<polygon fill = 'rgb(146,  73,  45)' fill-opacity = '0.500000' points = '516.2,58.6 558.4,58.6 558.4,49.6 516.2,49.6 '/>
+	</g>
+	<path stroke='rgb(146,  73,  45)'  d='M516.2,58.6 L558.4,58.6 L558.4,49.6 L516.2,49.6 L516.2,58.6 Z  '/></g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g stroke='none' shape-rendering='crispEdges'>
+		<polygon fill = 'rgb(146,  73,  45)' fill-opacity = '0.500000' points = '100.7,444.0 130.4,444.0 130.4,255.7 100.7,255.7 '/>
+	</g>
+	<path stroke='rgb(146,  73,  45)'  d='M100.7,444.0 L100.7,255.8 L130.3,255.8 L130.3,444.0 L100.7,444.0 Z  '/></g>
+	</g>
+	<g id="gnuplot_plot_3" ><title>Colemak</title>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(507.9,76.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text><tspan font-family="Arial" >Colemak</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(  9, 111,  83)' fill-opacity = '0.500000' points = '516.2,58.6 558.4,58.6 558.4,49.6 516.2,49.6 '/>
+		<polygon fill = 'rgb(188, 154, 177)' fill-opacity = '0.500000' points = '516.2,76.6 558.4,76.6 558.4,67.6 516.2,67.6 '/>
 	</g>
-	<path stroke='rgb(  9, 111,  83)'  d='M516.2,58.6 L558.4,58.6 L558.4,49.6 L516.2,49.6 L516.2,58.6 Z  '/></g>
+	<path stroke='rgb(188, 154, 177)'  d='M516.2,76.6 L558.4,76.6 L558.4,67.6 L516.2,67.6 L516.2,76.6 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(  9, 111,  83)' fill-opacity = '0.500000' points = '106.9,444.0 141.7,444.0 141.7,253.5 106.9,253.5 '/>
+		<polygon fill = 'rgb(188, 154, 177)' fill-opacity = '0.500000' points = '137.7,444.0 167.5,444.0 167.5,253.5 137.7,253.5 '/>
 	</g>
-	<path stroke='rgb(  9, 111,  83)'  d='M106.9,444.0 L106.9,253.6 L141.6,253.6 L141.6,444.0 L106.9,444.0 Z  '/></g>
+	<path stroke='rgb(188, 154, 177)'  d='M137.7,444.0 L137.7,253.6 L167.4,253.6 L167.4,444.0 L137.7,444.0 Z  '/></g>
 	</g>
-	<g id="gnuplot_plot_3" ><title>Workman</title>
+	<g id="gnuplot_plot_4" ><title>Workman</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(507.9,76.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<g transform="translate(507.9,94.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text><tspan font-family="Arial" >Workman</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(102,  77,  60)' fill-opacity = '0.500000' points = '516.2,76.6 558.4,76.6 558.4,67.6 516.2,67.6 '/>
+		<polygon fill = 'rgb(169,  93,  88)' fill-opacity = '0.500000' points = '516.2,94.6 558.4,94.6 558.4,85.6 516.2,85.6 '/>
 	</g>
-	<path stroke='rgb(102,  77,  60)'  d='M516.2,76.6 L558.4,76.6 L558.4,67.6 L516.2,67.6 L516.2,76.6 Z  '/></g>
+	<path stroke='rgb(169,  93,  88)'  d='M516.2,94.6 L558.4,94.6 L558.4,85.6 L516.2,85.6 L516.2,94.6 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(102,  77,  60)' fill-opacity = '0.500000' points = '150.3,444.0 185.0,444.0 185.0,233.1 150.3,233.1 '/>
+		<polygon fill = 'rgb(169,  93,  88)' fill-opacity = '0.500000' points = '174.8,444.0 204.5,444.0 204.5,233.1 174.8,233.1 '/>
 	</g>
-	<path stroke='rgb(102,  77,  60)'  d='M150.3,444.0 L150.3,233.2 L184.9,233.2 L184.9,444.0 L150.3,444.0 Z  '/></g>
+	<path stroke='rgb(169,  93,  88)'  d='M174.8,444.0 L174.8,233.2 L204.4,233.2 L204.4,444.0 L174.8,444.0 Z  '/></g>
 	</g>
-	<g id="gnuplot_plot_4" ><title>Norman</title>
+	<g id="gnuplot_plot_5" ><title>Norman</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(507.9,94.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<g transform="translate(507.9,112.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text><tspan font-family="Arial" >Norman</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(168, 104, 248)' fill-opacity = '0.500000' points = '516.2,94.6 558.4,94.6 558.4,85.6 516.2,85.6 '/>
+		<polygon fill = 'rgb( 34, 159,  31)' fill-opacity = '0.500000' points = '516.2,112.6 558.4,112.6 558.4,103.6 516.2,103.6 '/>
 	</g>
-	<path stroke='rgb(168, 104, 248)'  d='M516.2,94.6 L558.4,94.6 L558.4,85.6 L516.2,85.6 L516.2,94.6 Z  '/></g>
+	<path stroke='rgb( 34, 159,  31)'  d='M516.2,112.6 L558.4,112.6 L558.4,103.6 L516.2,103.6 L516.2,112.6 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(168, 104, 248)' fill-opacity = '0.500000' points = '193.6,444.0 228.4,444.0 228.4,224.2 193.6,224.2 '/>
+		<polygon fill = 'rgb( 34, 159,  31)' fill-opacity = '0.500000' points = '211.8,444.0 241.6,444.0 241.6,224.2 211.8,224.2 '/>
 	</g>
-	<path stroke='rgb(168, 104, 248)'  d='M193.6,444.0 L193.6,224.3 L228.3,224.3 L228.3,444.0 L193.6,444.0 Z  '/></g>
+	<path stroke='rgb( 34, 159,  31)'  d='M211.8,444.0 L211.8,224.3 L241.5,224.3 L241.5,444.0 L211.8,444.0 Z  '/></g>
 	</g>
-	<g id="gnuplot_plot_5" ><title>Dvorak</title>
+	<g id="gnuplot_plot_6" ><title>Dvorak</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(507.9,112.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<g transform="translate(507.9,130.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text><tspan font-family="Arial" >Dvorak</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(221,   4, 169)' fill-opacity = '0.500000' points = '516.2,112.6 558.4,112.6 558.4,103.6 516.2,103.6 '/>
+		<polygon fill = 'rgb(  5, 240,  31)' fill-opacity = '0.500000' points = '516.2,130.6 558.4,130.6 558.4,121.6 516.2,121.6 '/>
 	</g>
-	<path stroke='rgb(221,   4, 169)'  d='M516.2,112.6 L558.4,112.6 L558.4,103.6 L516.2,103.6 L516.2,112.6 Z  '/></g>
+	<path stroke='rgb(  5, 240,  31)'  d='M516.2,130.6 L558.4,130.6 L558.4,121.6 L516.2,121.6 L516.2,130.6 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(221,   4, 169)' fill-opacity = '0.500000' points = '237.0,444.0 271.7,444.0 271.7,219.5 237.0,219.5 '/>
+		<polygon fill = 'rgb(  5, 240,  31)' fill-opacity = '0.500000' points = '248.9,444.0 278.6,444.0 278.6,219.5 248.9,219.5 '/>
 	</g>
-	<path stroke='rgb(221,   4, 169)'  d='M237.0,444.0 L237.0,219.6 L271.6,219.6 L271.6,444.0 L237.0,444.0 Z  '/></g>
+	<path stroke='rgb(  5, 240,  31)'  d='M248.9,444.0 L248.9,219.6 L278.5,219.6 L278.5,444.0 L248.9,444.0 Z  '/></g>
 	</g>
-	<g id="gnuplot_plot_6" ><title>QWERTY</title>
+	<g id="gnuplot_plot_7" ><title>QWERTY</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(507.9,130.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<g transform="translate(507.9,148.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text><tspan font-family="Arial" >QWERTY</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(238,   7, 218)' fill-opacity = '0.500000' points = '516.2,130.6 558.4,130.6 558.4,121.6 516.2,121.6 '/>
+		<polygon fill = 'rgb( 39, 128,  56)' fill-opacity = '0.500000' points = '516.2,148.6 558.4,148.6 558.4,139.6 516.2,139.6 '/>
 	</g>
-	<path stroke='rgb(238,   7, 218)'  d='M516.2,130.6 L558.4,130.6 L558.4,121.6 L516.2,121.6 L516.2,130.6 Z  '/></g>
+	<path stroke='rgb( 39, 128,  56)'  d='M516.2,148.6 L558.4,148.6 L558.4,139.6 L516.2,139.6 L516.2,148.6 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(238,   7, 218)' fill-opacity = '0.500000' points = '280.3,444.0 315.1,444.0 315.1,67.1 280.3,67.1 '/>
+		<polygon fill = 'rgb( 39, 128,  56)' fill-opacity = '0.500000' points = '285.9,444.0 315.7,444.0 315.7,67.1 285.9,67.1 '/>
 	</g>
-	<path stroke='rgb(238,   7, 218)'  d='M280.3,444.0 L280.3,67.2 L315.0,67.2 L315.0,444.0 L280.3,444.0 Z  '/></g>
+	<path stroke='rgb( 39, 128,  56)'  d='M285.9,444.0 L285.9,67.2 L315.6,67.2 L315.6,444.0 L285.9,444.0 Z  '/></g>
 	</g>
-	<g id="gnuplot_plot_7" ><title>gnuplot_plot_7</title>
+	<g id="gnuplot_plot_8" ><title>gnuplot_plot_8</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 	</g>
