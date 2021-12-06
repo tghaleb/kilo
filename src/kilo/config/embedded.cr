@@ -21,6 +21,8 @@ module Kilo
       score_base:                   "scripts/base_score.rb",
       score:                        "scripts/score.rb",
       common_db:                    "scripts/common_db.rb",
+      layouts_ar:                   "data/layouts.ar.txt",
+      layouts_en:                   "data/layouts.en.txt",
       weights:                      "scripts/weights.rb",
       corpus_en_filter:             "scripts/corpus-en-filter.rb",
       sql_by_alternation_grouped:   "sql/by_alternation_grouped.sql",

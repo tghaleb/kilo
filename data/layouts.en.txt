@@ -1,0 +1,5 @@
+qwertyuiop[asdfghjkl;'zxcvbnm,./ QWERTY
+',.pyfgcrl/aoeuidhtns-;qjkxbmwvz Dvorak
+qwfpgjluy;[arstdhneio'zxcvbkm,./ Colemak
+qdrwbjfup;[ashtgyneoi'zxmcvkl,./ Workman
+qwdfkjufl;[asefgynioh'zxcvbpm,./ Norman
