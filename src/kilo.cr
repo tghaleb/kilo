@@ -9,6 +9,6 @@ require "sqlite3"
 
 require "./kilo/main"
 
-VERSION = "0.2.4"
+VERSION = "0.2.5"
 
 Kilo::App.new.run
