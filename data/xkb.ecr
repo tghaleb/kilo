@@ -17,7 +17,5 @@ xkb_symbols "<%= @map[:name] %>" {
    -%>
       key <<%= k.to_s %>> {[ <%= chars.join(", ") %> ]};
 <%- end %>
-
-   include "capslock(none)"
 };
 

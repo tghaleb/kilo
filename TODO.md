@@ -1,6 +1,7 @@
  TODO
 
-- fix level3 on special keys
+- add gtypist script to gen gtypist
+
 - add a .gitignore to init 
 - fix sql and improve hard coded values
 - ar maybe middle 2800 and jumps 150
