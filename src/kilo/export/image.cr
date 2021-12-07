@@ -180,19 +180,36 @@ module Kilo
       ret_key(ctx)
     end
 
-    private def place_special_key(ctx, key, col, row, shift, data)
-      place_key(ctx, col: col, row: row.value, id: key.to_s, shift: shift)
-      # FIXME where to place?
+    private def place_text_helper(ctx, id, col, row, shift, data)
       return if data.size == 0
-      if data.size == 1
-        place_text(ctx, col: col, row: row.value, id: key.to_s + "x", text: data[0], shift: shift)
-      elsif data.size >= 2
-        place_text(ctx, col: col, row: row.value, id: key.to_s + "x",
+      if data.size > 0
+        place_text(ctx, col: col, row: row.value, id: id + "x",
           text: data[0], shift: shift, placement: :down)
+      end
 
-        place_text(ctx, col: col, row: row.value, id: key.to_s + "x2",
+      if data.size > 1
+        place_text(ctx, col: col, row: row.value, id: id + "x2",
           text: data[1], shift: shift, placement: :up)
       end
+      if data.size > 2
+        place_text(ctx, col: col, row: row.value, id: id + "x3",
+          text: data[2], shift: shift, placement: :down_right, color: L3_COLOR)
+      end
+      if data.size > 3
+        place_text(ctx, col: col, row: row.value, id: id + "x4",
+          text: data[3], shift: shift, placement: :up_right, color: L4_COLOR)
+      end
+    end
+
+    private def place_special_key(ctx, key, col, row, shift, data)
+      place_key(ctx, col: col, row: row.value, id: key.to_s, shift: shift)
+      place_text_helper(
+        ctx,
+        id: key.to_s,
+        col: col,
+        row: row,
+        shift: shift,
+        data: data)
     end
 
     private def place_regular_key(ctx, key, col, row, shift, data,
@@ -204,27 +221,13 @@ module Kilo
           ctx, col: col, row: row.value,
           id: KEY_ID + HEAT_COLOR, shift: shift, opacity: h_value)
       end
-
-      # FIXME: loop over data and place down up down-right up-right and
-      # stop at 4 levels or stop at 2 cleaner?
-      return if data.size == 0
-      if data.size > 0
-        place_text(ctx, col: col, row: row.value, id: key.to_s + "x",
-          text: data[0], shift: shift, placement: :down)
-      end
-      if data.size > 1
-        place_text(ctx, col: col, row: row.value, id: key.to_s + "x2",
-          text: data[1], shift: shift, placement: :up)
-      end
-
-      if data.size > 2
-        place_text(ctx, col: col, row: row.value, id: key.to_s + "x3",
-          text: data[2], shift: shift, placement: :down_right, color: L3_COLOR)
-      end
-      if data.size > 3
-        place_text(ctx, col: col, row: row.value, id: key.to_s + "x4",
-          text: data[3], shift: shift, placement: :up_right, color: L4_COLOR)
-      end
+      place_text_helper(
+        ctx,
+        id: key.to_s,
+        col: col,
+        row: row,
+        shift: shift,
+        data: data)
     end
 
     # private def place_key(ctx, col, row, trans_x)

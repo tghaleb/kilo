@@ -1,6 +1,6 @@
  TODO
 
-- export extra remove what is not needed and add combined same_finger
+- fix level3 on special keys
 - add a .gitignore to init 
 - fix sql and improve hard coded values
 - ar maybe middle 2800 and jumps 150
