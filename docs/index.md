@@ -44,6 +44,8 @@ Take a look at [Philosophy](philosophy.md).
 
 ## Installation
 
+Get from <https://github.com/tghaleb/kilo>.
+
 To build you need to have [crystal](https://crystal-lang.org/) installed on your system. In addition to 
 `sqlite` and `zstd`.
 
