@@ -53,6 +53,8 @@ xkb_list:
   "¬": notsign
   "®": registered
   "¯": macron
+  "–": endash
+  "—": emdash
   "°": degree
   "±": plusminus
   "²": twosuperior
@@ -241,3 +243,52 @@ xkb_list:
   Ч: Cyrillic_CHE
   Ъ: Cyrillic_HARDSIGN
   €: EuroSign
+  Α: Greek_ALPHA
+  Β: Greek_BETA
+  Γ: Greek_GAMMA
+  Δ: Greek_DELTA
+  Ε: Greek_EPSILON
+  Ζ: Greek_ZETA
+  Η: Greek_ETA
+  Θ: Greek_THETA
+  Ι: Greek_IOTA
+  Κ: Greek_KAPPA
+  Λ: Greek_LAMBDA
+  Μ: Greek_MU
+  Ν: Greek_NU
+  Ξ: Greek_XI
+  Ο: Greek_OMICRON
+  Π: Greek_PI
+  Ρ: Greek_RHO
+  Σ: Greek_SIGMA
+  Τ: Greek_TAU
+  Υ: Greek_UPSILON
+  Φ: Greek_PHI
+  Χ: Greek_CHI
+  Ψ: Greek_PSI
+  Ω: Greek_OMEGA
+  α: Greek_alpha
+  β: Greek_beta
+  γ: Greek_gamma
+  δ: Greek_delta
+  ε: Greek_epsilon
+  ζ: Greek_zeta
+  η: Greek_eta
+  θ: Greek_theta
+  ι: Greek_iota
+  κ: Greek_kappa
+  λ: Greek_lambda
+  µ: Greek_mu
+  ν: Greek_nu
+  ξ: Greek_xi
+  ο: Greek_omicron
+  π: Greek_pi
+  ρ: Greek_rho
+  σ: Greek_sigma
+  #    :Greek_finalsmallsigma
+  τ: Greek_tau
+  υ: Greek_upsilon
+  φ: Greek_phi
+  χ: Greek_chi
+  ψ: Greek_psi
+  ω: Greek_omega
