@@ -1,0 +1,135 @@
+#!/bin/ruby
+# converts a text file to gtypist lessons
+
+
+if ARGV.size != 1
+  puts "wrong arg count"
+  exit 1
+end
+
+input = ARGV[0]
+
+LESSON_LINES = 5
+LESSON_LIMIT = 30
+
+HEAD="
+B: Text Drills 
+G:_L_MENU
+*:_L_NO_MENU
+T:This is a custom text drill.
+"
+
+unless File.file? input
+  puts "Error: not a file '#{input}'"
+  exit 1
+end
+
+@lines=[]
+
+open(input) do |f|
+  @lines = f.readlines
+end
+
+@name = File.basename input
+
+def put_section_start(lesson_num, num)
+  puts 
+  puts "I:(#{num})"
+  puts "*:_L_#{lesson_num}_L#{num}"
+end
+
+def put_lesson_start(lesson_num)
+  puts "
+*:L#{lesson_num}
+B:
+T: #{@name} #{lesson_num}
+"
+
+end
+
+def puts_menu(lesson_num)
+
+puts "*:_L_MENU
+
+B:      Menu"
+
+1.upto(lesson_num) do |i|
+    puts "K:#{i}:L#{i}"
+    break if i == 12
+end
+
+puts "K:12:_EXIT"
+
+puts "
+T:
+ :      This series contains the following:
+ :"
+1.upto(lesson_num) do |i|
+    puts " :      Fkey #{i} - Lesson #{i}"
+    break if i == 12
+end
+
+puts " :      Fkey 12 - Exit"
+
+puts "
+Q:Please select a lesson, or Fkey 12 to exit. 
+
+*:_EXIT
+Q:Do you want to exit program [Y/N]?
+N:_L_MENU"
+
+end
+
+puts HEAD
+
+@start = 0
+
+lesson_num = 1
+
+
+section = []
+
+# cleanup (remove empty lines at start or end)
+def put_section(section)
+  section[0].gsub!(/^ :/, "S:")
+  if section[-1] =~ /^ :\s+$/
+    section.delete_at(-1)
+  end
+
+  if section[-1] =~ /[a-zA-Z0-9]\s*$/
+    section[-1] = section[-1].rstrip + "\n"
+  end
+
+  puts section.join
+end
+
+@lines.each_index do |i|
+
+  if i != 0 and i % (LESSON_LIMIT * LESSON_LINES) == 0
+    lesson_num = lesson_num + 1
+    put_lesson_start(lesson_num)
+  end
+
+  if i == 0
+    num = 0
+    put_lesson_start(lesson_num)
+    put_section_start(lesson_num, num)
+  elsif i % LESSON_LINES == 0
+    put_section(section)
+    section = []
+    num = (i / (LESSON_LINES)) - ((lesson_num - 1) * LESSON_LIMIT)
+    put_section_start(lesson_num, num)
+    @start = @start + LESSON_LINES
+    next if @lines[i].strip == ""
+  elsif i == @lines.size - 1 # last page
+    section << " :" + @lines[i]
+    put_section(section)
+    break
+  end
+
+  section << " :" + @lines[i]
+
+end
+
+puts_menu(lesson_num)
+
