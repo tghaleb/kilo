@@ -69,9 +69,10 @@ module Kilo
     build_table_sql
     build_insert_sql
 
-    DEFAULT_SELECT   = "select * from #{TBL_LAYOUTS} order by alternation desc"
-    SELECT_ALL       = "select * from #{TBL_LAYOUTS};"
-    SCORE_COL        = "score"
-    UPDATE_SCORE_SQL = "UPDATE #{TBL_LAYOUTS} set #{SCORE_COL} = (?) WHERE layout = (?)"
+    SQL_TBL_LAYOUTS_DROP = "DROP TABLE IF EXISTS #{TBL_LAYOUTS}"
+    DEFAULT_SELECT       = "select * from #{TBL_LAYOUTS} order by alternation desc"
+    SELECT_ALL           = "select * from #{TBL_LAYOUTS};"
+    SCORE_COL            = "score"
+    UPDATE_SCORE_SQL     = "UPDATE #{TBL_LAYOUTS} set #{SCORE_COL} = (?) WHERE layout = (?)"
   end
 end
