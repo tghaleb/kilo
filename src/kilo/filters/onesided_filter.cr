@@ -5,25 +5,35 @@ module Kilo
     @bi_lookup = Array(Array(Tuple(UInt32, Int64))).new
     @char_lookup = Array(Key).new(size: 32, value: Key::NONE)
 
-    @score_adjacent_outward : Int64 = 0
-    @score_same_finger_rp : Int64 = 0
-    @score_jumps : Int64 = 0
-    @score_positional_effort : Int64 = 0
+    @score_adjacent_outward : Int16 = 0
+    @score_same_finger_rp : Int16 = 0
+    @score_same_finger_im : Int16 = 0
+    @score_jumps : Int16 = 0
+    @score_positional_effort : Int16 = 0
 
-    @min = 10_000.to_i16
+    @scores : SimpleScoresType = NULL_SIMPLE_SCORES.clone
+
+    # FIXME: add effort to do all in one place
+    getter score_same_finger_rp
+    getter scores
 
     def initialize
     end
 
-    def initialize(characters, bigrams, min)
+    def initialize(
+      characters,
+      bigrams,
+      min_hand = DEFAULT_MIN,
+      min_same_both = DEFAULT_MIN
+    )
       @characters = characters
       @bi_lookup = Utils.build_char_bigram_i(characters, bigrams)
-      @min = min
+      @min_hand = min_hand
+      @min_same_both = min_same_both
     end
 
     def pass?(side : Array(UInt8), hand : Hand) : Bool
       reinit_scores
-      # @score = 0.to_i16
 
       if hand == Hand::LEFT
         to_32 = ProjectConfig.instance.config[:left_to_32]
@@ -34,15 +44,31 @@ module Kilo
       side.each_index { |i| @char_lookup[side[i]] = KEYS_32[to_32[i]] }
 
       scan_hand(side, hand)
+
       @score = (@score_same_finger_rp + @score_adjacent_outward +
                 @score_jumps).to_i16
-      return @score <= @min
+
+      @scores[:hand] = (@score_same_finger_rp + @score_adjacent_outward +
+                        @score_jumps).to_i16
+
+      @score_same_both = (@score_same_finger_rp +
+                          @score_same_finger_im).to_i16
+
+      @scores[:same] = (@score_same_finger_rp +
+                        @score_same_finger_im).to_i16
+
+      @scores[:same_rp] = @score_same_finger_rp
+
+      return (@score <= @min_hand) && (@score_same_both <=
+        @min_same_both)
     end
 
     private def reinit_scores
       @score = 0
+      @score_same_both = 0
       @score_jumps = 0
       @score_same_finger_rp = 0
+      @score_same_finger_im = 0
       @score_adjacent_outward = 0
     end
 
@@ -98,6 +124,8 @@ module Kilo
       if Utils.finger_pos(finger1) == Utils.finger_pos(finger2)
         if Utils.finger_pos(finger1) >= ring_pos
           @score_same_finger_rp += count
+        else
+          @score_same_finger_im += count
         end
       elsif (Utils.finger_pos(finger1) + 1) == Utils.finger_pos(finger2)
         return if Utils.finger_pos(finger1) == index_pos
