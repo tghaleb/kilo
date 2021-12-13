@@ -78,8 +78,8 @@ kilo freq -f data/bigrams.eng_web_2014_1M-sentences.txt.yml.zst
 kilo gen -f data/fast.eng_web_2014_1M-sentences.txt.yml
 kilo gen --best 50 > top.txt
 kilo improve --layouts top.txt --out top.db --limit 5 sql/improve-*
-kilo query --sql sql/by_score.sql --limit 100 top.db | less
-kilo query --sql sql/by_score.sql --print top.db --limit 100 | head -n 3 > candidates.txt
+kilo query top.db --sql sql/by_score.sql --limit 100 | less
+kilo query top.db --sql sql/by_score.sql --limit 100 --layouts | head -n 3 > candidates.txt
 kilo export --create-templates candidates.txt
 kilo export --xkb --image --type maps/*.yaml
 ```
