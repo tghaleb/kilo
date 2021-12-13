@@ -75,37 +75,75 @@ module Kilo
       return _layouts
     end
 
-    # FIXME: rename and do according to hands and rows?
-    def self.lr_to_string_2(left, right, chars)
-      layout = Array(String).new(value: "\n", size: 32 + 6)
-      left.each_index do |x|
-        # FIXME: this is based on our layout that we already now 15/16
-        # division
-        layout[0..4] = left[0..4].map { |x| chars[x] }
-        layout[5] = " "
-        layout[6..11] = right[0..5].map { |x| chars[x] }
+    def self.lr_to_string(left, right, chars)
+      layout = Array(String).new(value: " ", size: 32)
 
-        layout[13..17] = left[5..9].map { |x| chars[x] }
-        layout[18] = " "
-        layout[19..24] = right[6..11].map { |x| chars[x] }
-
-        layout[26..31] = left[10..15].map { |x| chars[x] }
-        layout[31] = " "
-        layout[33..36] = right[12..15].map { |x| chars[x] }
+      lr_to_32(left, right).each_with_index do |x, i|
+        layout[i] = chars[x]
       end
+
       return layout.join("")
     end
 
-    def self.lr_to_string(left, right, chars)
-      layout = Array(String).new(value: " ", size: 32)
+    # Returns Left/Right to a combined 32 Array of UInt8
+    def self.lr_to_32(left, right)
+      layout = Array(UInt8).new(size: 32, value: 0)
 
       left_to_32 = ProjectConfig.instance.config[:left_to_32]
       right_to_32 = ProjectConfig.instance.config[:right_to_32]
 
-      left.each_with_index { |x, i| layout[left_to_32[i]] = chars[x] }
-      right.each_with_index { |x, i| layout[right_to_32[i]] = chars[x] }
+      left.each_with_index { |x, i| layout[left_to_32[i]] = x }
+      right.each_with_index { |x, i| layout[right_to_32[i]] = x }
+      return layout
+    end
 
-      return layout.join("")
+    # debugger for layouts
+    def self.debug_layout(left, right, name = "layout")
+      #      layout = Array(String).new(value: " ", size: 32)
+
+      #      lr_to_32(left, right).each_with_index do |x, i|
+      #        layout[i] = "%2d" % x
+      #      end
+      #
+      layout = Array(String).new(value: " ", size: 32)
+
+      lr_to_32(left, right).each_with_index do |x, i|
+        layout[i] = "%2d" % x
+      end
+
+      debug_layout(layout)
+      # Helper.debug_inspect(layout[0..10].join(" "), "layout r1")
+      # Helper.debug_inspect(layout[11..21].join(" "), "layout r2")
+      # Helper.debug_inspect(layout[22..31].join(" "), "layout r3")
+    end
+
+    def self.debug_layout(layout : Array(String), name = "layout")
+      Helper.put_debug(name)
+      Helper.debug_inspect(layout[0..10].join(" "), "layout r1")
+      Helper.debug_inspect(layout[11..21].join(" "), "layout r2")
+      Helper.debug_inspect(layout[22..31].join(" "), "layout r3")
+    end
+
+    # debugger for layouts
+    def self.debug_diff_layouts(left1, right1, left2, right2, name1 = "layout1", name2 = "layout2")
+      layout1 = Array(String).new(value: "--", size: 32)
+      layout2 = Array(String).new(value: "--", size: 32)
+
+      _layout1 = lr_to_32(left1, right1)
+      _layout2 = lr_to_32(left2, right2)
+
+      debug_layout(left1, right1, name1)
+      debug_layout(left2, right2, name2)
+
+      layout1.each_index do |i|
+        unless _layout1[i] == _layout2[i]
+          layout1[i] = "%2d" % _layout1[i]
+          layout2[i] = "%2d" % _layout2[i]
+        end
+      end
+
+      debug_layout(layout1, name1)
+      debug_layout(layout2, name2)
     end
 
     # left array (or right) to uint32 layout
@@ -130,15 +168,45 @@ module Kilo
 
     # use an object
     def self.half_effort(side, side_to_32, characters)
-      #   @score_positional_effort += (kb_weights[Utils.key_32_left(pos)] * count).to_i16
+      kb_weights = ProjectConfig.instance.config[:kb_weights]
       effort = 0
       side.each_index do |i|
         index = side_to_32[i]
-        w = characters[index]
+        # puts index
+        w = characters[side[i]]
+        # puts w
         key = KEYS_32[index]
-        effort << (kb_weights[key] * w)
+        # puts key
+        effort += (kb_weights[key] * w)
       end
-      return (effort/EFFORT_SCALE).to_i16
+      if effort > Int16::MAX
+        return Int16::MAX
+      else
+        return (effort/EFFORT_SCALE).to_i16
+      end
+    end
+
+    def self.get_best_min_effort(left, right, l_by_weight, r_by_weight, chars, delta = 100)
+      l, r = get_best_effort(left, right, l_by_weight, r_by_weight)
+
+      left_to_32 = ProjectConfig.instance.config[:left_to_32]
+      right_to_32 = ProjectConfig.instance.config[:right_to_32]
+
+      if (half_effort(left, left_to_32, chars) - half_effort(l,
+           left_to_32, chars)).abs > delta
+        _left = l
+      else
+        _left = left
+      end
+
+      if (half_effort(right, right_to_32, chars) - half_effort(r,
+           right_to_32, chars)).abs > delta
+        _right = r
+      else
+        _right = right
+      end
+
+      return _left, _right
     end
 
     def self.get_best_effort(left, right, l_by_weight, r_by_weight)
@@ -148,7 +216,13 @@ module Kilo
       l_sorted = left.sort
       r_sorted = right.sort
 
+      # Helper.debug_inspect(kb_weights, "kb_weights")
+      # Helper.debug_inspect(l_sorted, "l_sorted")
+
+      # FIXME: if in group don't place it.
       l_sorted.each_index do |i|
+        #        if kb_weights[i] = l_sorted[i]
+        #        end
         l[l_by_weight[i]] = l_sorted[i]
       end
 
@@ -435,6 +509,12 @@ module Kilo
 
     def self.create_db(file)
       db = DB_Helper.new(file)
+      db.db.exec(SQL_TBL_LAYOUTS_CREATE)
+      db
+    end
+
+    def self.reinit_db(db)
+      db.db.exec(SQL_TBL_LAYOUTS_DROP)
       db.db.exec(SQL_TBL_LAYOUTS_CREATE)
       db
     end
