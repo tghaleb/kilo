@@ -94,9 +94,7 @@ module Kilo
       OptionConfig.new(
         name: "score",
         short: "s",
-        label: "Script to generate user_score.",
-        option_type: OptionStyle::Option,
-        argument_string: "SCRIPT",
+        label: "regenerate user_score and exists.",
       )
 
     OUT_DB_OPT = OptionConfig.new(
@@ -124,12 +122,11 @@ module Kilo
       arguments_range: 1..1,
       options: [
         OUT_DB_OPT,
-        SCORE_OPT,
-        OptionConfig.new(
-          name: "print",
-          short: "p",
-          label: "Prints to STDOUT.",
-        ),
+        #        OptionConfig.new(
+        #          name: "print",
+        #          short: "p",
+        #          label: "Prints to STDOUT.",
+        #        ),
       ],
     )
 
@@ -308,9 +305,7 @@ module Kilo
       description: <<-E.to_s,
              Example:
                #{Constants::NAME} improve --layouts top10.raw.txt
-                 --score scripts/score.rb --out top10.db
-                 sql/score.sql sql/jumps.sql sql/same-finger.sql
-                 sql/outward.sql
+                 --out top10.db sql/improve-*.sql
              E
 
       arguments_string: "SQL-FILE ...",
@@ -323,13 +318,9 @@ module Kilo
           argument_string: "FILE",
         ),
         OptionConfig.new(
-          name: "slow",
-          label: "more permutations but much more time",
-          option_type: OptionStyle::Option,
-          argument_string: "NUMBER",
-          default: 0,
+          name: "fast",
+          label: "generates only one better layout, for debuging mostly",
         ),
-        SCORE_OPT,
         OUT_DB_OPT,
         SQL_LIMIT,
       ],
@@ -359,8 +350,8 @@ module Kilo
                   #{Constants::NAME} query top10.db
                 Query a database selecting using a user sql
                   #{Constants::NAME} query top10.db --sql sql/final.sql
-                Apply a scoring scipt to database then print everything to STDOUT
-                  #{Constants::NAME} query --score scripts/score.rb top10.db
+                Regenerate score and print verything to STDOUT
+                  #{Constants::NAME} query --score
               E
 
       arguments_range: 1..1,
@@ -375,11 +366,6 @@ module Kilo
         OptionConfig.new(
           name: "json",
           label: "Results in json format.",
-        ),
-
-        OptionConfig.new(
-          name: "compare",
-          label: "Results as a comparison char.",
         ),
         SCORE_OPT,
         SQL_OPT,
