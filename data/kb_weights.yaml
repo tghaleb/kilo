@@ -18,10 +18,10 @@ kb_weights:
   ad01: 5
   ad02: 4
   ad03: 3
-  ad04: 3
+  ad04: 2
   ad05: 4
   ad06: 6
-  ad07: 3
+  ad07: 2
   ad08: 3
   ad09: 4
   ad10: 5
@@ -44,12 +44,12 @@ kb_weights:
   lfsh: 7
   ab01: 6
   ab02: 5
-  ab03: 5
-  ab04: 4
+  ab03: 4
+  ab04: 3
   ab05: 6
-  ab06: 4
-  ab07: 5
-  ab08: 5
+  ab06: 3
+  ab07: 4
+  ab08: 4
   ab09: 5
   ab10: 6
   rtsh: 8
