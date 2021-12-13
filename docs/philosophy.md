@@ -141,5 +141,3 @@ scoring system will depend on your preferences and will be biased is some way.
 Sometimes, you might decide to select a layout that is not the highest scoring,
 but one that has good characteristics that you would like to see in a layout.
 
-![same_finger_rp](images/layouts.db.score.svg)
-
