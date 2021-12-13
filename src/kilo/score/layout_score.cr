@@ -191,8 +191,11 @@ module Kilo
       @score_balance = 0
       @score_positional_effort = 0
       @score_alternation = 0
+      # fixme can we clean without removing items
       @score_rows = Array(Int64).new(size: 3, value: 0)
+      # @score_rows[0..-1] = 0
       @score_fingers = Array(Int64).new(size: 10, value: 0)
+      # @score_fingers[0..-1] = 0
       @score_jumps = 0
       @score_same_finger_rp = 0
       @score_same_finger_im = 0
@@ -220,6 +223,7 @@ module Kilo
       @score.inward = @score_adjacent_inward.to_i16
       @score.outward = @score_adjacent_outward.to_i16
       @score.text_direction = @score_text_direction.to_i16
+      @score.calculate_score
     end
   end
 end
