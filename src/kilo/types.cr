@@ -10,4 +10,13 @@ module Kilo
   alias UserLayout = NamedTuple(
     k32: String,
     name: String)
+
+  alias SimpleScoresType = Hash(Symbol, Int16 | Array(UInt8) | String)
+
+  NULL_SIMPLE_SCORES = SimpleScoresType{
+    :hand    => 0.to_i16,
+    :same    => 0.to_i16,
+    :same_rp => 0.to_i16,
+    :effort  => 0.to_i16,
+  }
 end
