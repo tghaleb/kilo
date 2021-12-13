@@ -1,0 +1,51 @@
+---
+weights:
+  hand: 0.8
+  effort: 0.14
+  direction: 0.02
+  balance: 0.02
+  fingers: 0.02
+
+hand_weights:
+  jumps: 0.3
+  outward: 0.3
+  same_finger_rp: 0.25
+  same_finger_im: 0.15
+
+finger_weights:
+  indices: 0.2
+  middles: 0.0
+  rings: 0.3
+  pinkies: 0.5
+
+# minimum indices to get score
+finger_levels:
+  indices: 3800
+  middles: 3000
+  pinkies: 1500
+  rings: 1800
+
+# Points to add for each key match with qwerty layout
+qwerty_bonus_point: 10
+
+# These are excellent values that we would accept
+# We use these values to make sure that values below these
+# don't skew the results. Less that this value will still be
+# scored at this level.
+min:
+  jumps: 10
+  outward: 10
+  same_finger_rp: 40
+  same_finger_im: 400
+
+# bellow this effort layout gets penalties
+penalties:
+  alternation: 7000
+  text_direction: 5000
+  effort: 3500
+  balance_delta: 500
+
+# used for direction scoring (probably no need to edit this)
+# max_direction: 5500
+#min_direction: 4000
+
