@@ -27,11 +27,13 @@ module Kilo
 
       @layouts = Utils.load_user_layouts(_layouts)
 
-      eval_layouts(@layouts, @db, @opts["score"].to_s)
+      # eval_layouts(@layouts, @db, @opts["score"].to_s)
+      eval_layouts(@layouts, @db)
     end
 
     # FIXME: use a constant
-    def eval_layouts(layouts, db, score_script, filter = NULL_EVAL_FILTER) : Nil
+    # def eval_layouts(layouts, db, score_script, filter = NULL_EVAL_FILTER) : Nil
+    def eval_layouts(layouts, db, filter = NULL_EVAL_FILTER) : Nil
       # data object for each layout
       # not efficient to do object per object what if all share same
       # characters, we need to group them?
@@ -52,24 +54,24 @@ module Kilo
         end
       end
 
-      Utils.update_score(db.current_path, score_script, inplace: true)
-      print_results(db)
+      # Utils.update_score(db.current_path, score_script, inplace: true)
+      # print_results(db)
       db.close
       # maybe return scores as well as an object, but that could be huge
       # so no
     end
 
-    def print_results(db)
-      return unless @opts["print"].as(Bool)
-
-      db.query("select * from #{TBL_LAYOUTS} order by alternation") do |rs|
-        Score.from_rs(rs).each do |x|
-          puts x.to_string
-          puts
-        end
-      end
-    end
-
+    #    def print_results(db)
+    #      return unless @opts["print"].as(Bool)
+    #
+    #      # db.query("select * from #{TBL_LAYOUTS} order by alternation") do |rs|
+    #      #  Score.from_rs(rs).each do |x|
+    #      #    puts x.to_string
+    #      #    puts
+    #      #  end
+    #      # end
+    #    end
+    #
     private def score(layout_s, name) : Score
       new_chars = layout_s.split("").sort
 
