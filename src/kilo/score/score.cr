@@ -97,6 +97,14 @@ module Kilo
     build_values
     build_var_names
 
+    # FIXME: use base class
+    @scorer : Kilo::Scorers::BaseScorer = Kilo::Scorers::DefaultScorer.new
+    property scorer
+
+    def calculate_score
+      @score = @scorer.score(self)
+    end
+
     # Required to be able to serialize with yaml
     def new(ctx : YAML::ParseContext, node : YAML::Nodes::Node)
       unless node.is_a?(YAML::Nodes::Mapping)
@@ -190,12 +198,12 @@ module Kilo
 
     # Given characters returns (should we save the characters used?)
     # this is getting wasteful in terms of storage?
-    def self.layout_to_string(chars)
-      left, right = decoded
-      puts Utils.lr_to_string(left, right, chars.sorted)
-      puts Utils.lr_to_string_2(left, right, chars.sorted)
-    end
-
+    #    def self.layout_to_string(chars)
+    #      left, right = decoded
+    #      puts Utils.lr_to_string(left, right, chars.sorted)
+    #      # puts Utils.lr_to_string_2(left, right, chars.sorted)
+    #    end
+    #
     @[AlwaysInline]
     def self.format_float(n : Float64)
       return ("%2.2f" % n).colorize(:green)
