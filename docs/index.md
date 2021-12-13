@@ -35,7 +35,7 @@ Take a look at [Philosophy](philosophy.md).
 - Can generate layouts faster if fast filter is generated.
 - Optimizes keyboard layouts.
 - User can use custom `sql` to query layout data
-- User can use custom scoring function to score layout data.
+- User can customize internal scoring function using a config file.
 - User can use their own corpus (plain text or compressed `gz`/`zstd`).
 - Generates `svg` diagrams of keyboard layouts.
 - Generates `xkb` config for keyboard layouts.
@@ -76,8 +76,8 @@ Edit `config/config.yaml` and set path of corpus to use.
 ```console
 kilo freq -f data/bigrams.eng_web_2014_1M-sentences.txt.yml.zst
 kilo gen -f data/fast.eng_web_2014_1M-sentences.txt.yml
-kilo gen --best 100 > top.txt
-kilo improve --layouts top.txt --score scripts/score.rb --out top.db --limit 5 sql/improve-*
+kilo gen --best 50 > top.txt
+kilo improve --layouts top.txt --out top.db --limit 5 sql/improve-*
 kilo query --sql sql/by_score.sql --limit 100 top.db | less
 kilo query --sql sql/by_score.sql --print top.db --limit 100 | head -n 3 > candidates.txt
 kilo export --create-templates candidates.txt
@@ -158,15 +158,16 @@ the best 100 layouts in terms of alternation, but they are
 not optimized in any other way so you need to improve them,
 
 ```console
-kilo improve --layouts top100.txt --score scripts/score --out \
+kilo improve --layouts top100.txt --out \
 top100.db --limit 5 sql/improve-*
 ```
 
 This will improve the left and right side of the layout. It does this
 by placing the characters according to the least positional effort and then
-trying all permutations that yield the same effort score.  The SQL
-files are used to make selections of the best layouts from left/right databases 
-to be combine into the final layouts. The `limit` is used
+trying all permutations that yield the same effort score in addition to
+some smart brute-forcing. This is a slow
+process and mostly done in memory. Best layouts from left/right databases 
+are combined into the final layouts. The `limit` is used
 with each SQL select.
 
 ```console
@@ -174,7 +175,9 @@ kilo query top100.db --limit 50 --sql sql/by-score.sql | less
 ```
 
 You can then query selecting the ones you like. By score or other
-criteria.
+criteria. Note that score is only to give an indication so you will
+either want to tweak the scoring weights/config or base your selections
+on your sql statements.
 
 ```console
 kilo query top100.db --limit 10 --sql sql/by-hand.sql --layouts >
@@ -206,13 +209,10 @@ you can work on a memory disk, and then copy the data back afterwards.
 
 ### Scoring
 
-By default `kilo` doesn't add a score, the scoring script provided is 
-an example by you can customize it or create your own to suite your
-taste. Scoring scripts can be used with `eval`, `improve`, or `query`.
-
-```console
-kilo query name.db  --sql sql/by-jumps.sql --score scripts/score1.rb
-```
+By default `kilo` comes with a built in scorer that you can configure
+by edition `data/default_scorer.yaml`. If you make changes in the configuration
+and want to score again, use `query` with `--score` option and it will
+update the scores.
 
 ### SQL
 
@@ -228,40 +228,19 @@ we use bitmaps that are 32bits long to do some operations. But after
 you come up with the best 32 key layout, you can edit the yaml
 template for the layout and add the rest of the characters manually.
 
-When improving weights matter. They will effect how much time it will take to
-optimize. The way optimization works is to calculate permutations for
-each group of keys of the same weight. If you have 
-small groups, say 4 keys per weight on each side, it should take a reasonable amount of
-time. If you decide to give all the keys the same weight
-trying to brute force all permutations you will
-run out of memory and the program will crash. So there is a limit for
-this. 
+When improving weights matter but not too much. The way optimization works is 
+to calculate permutations for each group of keys of the same weight first to come-up with
+a reasonable base-line layout. The do some brute forcing trying to find
+good stats for layouts. All work is done in memory, so it will use a
+considerable amount of memory.
 
-There is a `--slow` option that you can try, it
-combines the items of n highest weights together so `--slow` 1 would
-combine the last two weights and therefore take more time but possibly
-give slightly better results. You can experiment with this, if you
-already have one or two candidates and you want to find better layouts
-for them. Note that 2 is as high as you can go.
-You will want to work first without the slow option, select a couple
-of layouts, one representing each candidate you want to improve
-further, and then improve them again with --slow 1. Use
-`--slow` 2 to get to your final selection. By using the slow
-option you are willing to sacrifice a little positional effort for
-better overall same hand scores.
-
-When improving the higher the limit the more time it will take. A
-limit of 5 or 10 seems to work fine. Always start with a
-`pre-slow-improve` SQL first and then select layouts to do with the slow
-option. For example,
+When improving a limit of 5 is usually enough. 
 
 ```console
-kilo improve --score scripts/score.rb --layouts best.txt --limit 1 sql/pre_slow_improve.sql -o single.db
-kilo query single.db --limit 100 --layouts > single.txt
-kilo improve --slow 2 --score scripts/score.rb --layouts single.txt --limit 5 sql/improve* -o single.imp.db
+kilo improve --layouts best.txt --limit 5 sql/improve* -o improved.db
 ```
 
-Slow improvement is *slow*!
+Improvement is `slow`.
 
 ### Alternation
 

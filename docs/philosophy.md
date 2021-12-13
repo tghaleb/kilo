@@ -7,7 +7,29 @@ also bad layouts. The QWERTY layout fails on most
 comparison criteria. To start with, we can define the properties of a
 layout that are least subjective.
 
-![eval](images/eval.png)
+```json
+name: QWERTY
+layout: qwertyuiop[asdfghjkl;'zxcvbnm,./
+score: 1.35
+positional_effort: 64.74
+alternation: 47.89
+text_direction: 50.49
+same_hand:
+  jumps: 9.66
+  same_finger:
+    rp: 2.31
+    im: 8.77
+  adjacent-mrp:
+    inward: 3.62
+    outward: 4.00
+balance: 64.23
+  rows: [50.67, 31.41, 17.77]
+  fingers: [8.13, 8.18, 19.09, 28.83, 0.00, 0.00, 11.29, 9.02, 12.96, 2.35]
+    indices: 40.12
+    middles: 28.11
+    rings: 21.14
+    pinkies: 10.48
+```
 
 ## Positional effort
 
@@ -31,11 +53,14 @@ calculates scores for positional effort, better layouts should have less effort 
 
 ![effort](images/layouts.db.positional_effort.svg)
 
+NOTE: we can sacrifice a little positional efficiency for the sake of
+getting an overall better layout, but not too much.
+
 ## Alternation
 
 Some might argue that high alternation is not necessarily a good
 thing and that typing with one hand is as fast, if not faster. Still
-distributing the work on both hands must be better.  I've experimented with 
+distributing the work on both hands must be better. I've experimented with 
 lower alternation and the important scores that
 matter seem to be proportional to alternation scores. The top 100
 alternation layouts seem to outperform others in all respects.
@@ -70,18 +95,30 @@ for most people so we would like to minimize that.
 ### Same finger
 
 Same finger for multiple keys also needs to be minimized but again we
-can break it into two parts, the Index and middle fingers are not a
-problem here so we should mostly minimize for pinky and ring fingers.
+can break it into two parts, the Index and middle fingers are probably not a
+problem. But we should decide how much weight to give to them. Some layouts might 
+choose to mostly minimize for pinky and ring fingers. It is not clear
+how much weight to give im fingers, though, so you can experiment with
+that.
 
 ![same_finger_rp](images/layouts.db.same_finger_rp.svg)
+
+And here if we want to consider also same index/middle fingers.
+
+![same_finger_both](images/layouts.db.same_finger_both.svg)
 
 One thing that you will notice is that as you try to minimize one 
 factor the others might go up. So you need to make a decision
 which factors matter most. The defaults for `kilo` favor minimizing 
-outward and jumps to same finger at the same time minimizing
-the sum of these 3 factors as a whole.
+outward and jumps and same rp finger at the same time minimizing
+the sum of these 3 factors as a whole but you can change these defaults.
 
 ![same hand](images/layouts.db.same_hand_effort.svg)
+
+And here we also add same index/middle fingers to the score, if
+we decide to consider `same_im`. 
+
+![same hand plus](images/layouts.db.same_hand_effort_im.svg)
 
 ### Other factors
 
@@ -97,13 +134,12 @@ There are other factors to consider:
 
 ## The `kilo` approach
 
-By default kilo calculates statistics for each layouts but does not
-assign a score. There is a `scripts/score.rb` that can be used to assign
-scores to layouts. You can customize this script or create your own. Any 
+By default kilo calculates statistics for each layouts and assigns 
+a score. You can change the weights that control the internal scorer or
+write your own. Any
 scoring system will depend on your preferences and will be biased is some way.
 Sometimes, you might decide to select a layout that is not the highest scoring,
 but one that has good characteristics that you would like to see in a layout.
 
 ![same_finger_rp](images/layouts.db.score.svg)
-
 
