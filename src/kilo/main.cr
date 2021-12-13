@@ -9,6 +9,7 @@ require "./db"
 require "./singleton"
 require "./config/embedded"
 require "./config/project_config"
+require "./scorers/*"
 
 require "./data/freq_hash"
 require "./data/freq_data"
