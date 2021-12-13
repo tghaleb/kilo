@@ -4,7 +4,7 @@ module Kilo
   class Compare < Command
     include Constants
 
-    EXTRA_CHARTS = Set.new([:same_both, :indices, :middles, :rings, :pinkies])
+    EXTRA_CHARTS = Set.new([:indices, :middles, :rings, :pinkies])
 
     @db = DB_Helper.new
     @sql = SELECT_ALL
@@ -87,6 +87,7 @@ module Kilo
       alternation = Array(Float64).new
       text_direction = Array(Float64).new
       same_hand_effort = Array(Float64).new
+      same_hand_effort_im = Array(Float64).new
       indices = Array(Float64).new
       middles = Array(Float64).new
       pinkies = Array(Float64).new
@@ -106,6 +107,8 @@ module Kilo
         alternation << layout.alternation/100
         text_direction << layout.text_direction/100
         same_hand_effort << same_finger_rp[-1] + jumps[-1] + outward[-1]
+        same_hand_effort_im << same_hand_effort[-1] +
+                               (layout.same_finger_im/100)
         pinkies << layout.pinkies/100
         middles << layout.middles/100
         indices << layout.indices/100
@@ -118,21 +121,22 @@ module Kilo
       end
 
       return {
-        names:             names,
-        colors:            colors,
-        jumps:             jumps,
-        outward:           outward,
-        same_finger_rp:    same_finger_rp,
-        same_finger_both:  same_finger_both,
-        same_hand_effort:  same_hand_effort,
-        positional_effort: positional_effort,
-        indices:           indices,
-        middles:           middles,
-        rings:             rings,
-        pinkies:           pinkies,
-        alternation:       alternation,
-        text_direction:    text_direction,
-        score:             score,
+        names:               names,
+        colors:              colors,
+        jumps:               jumps,
+        outward:             outward,
+        same_finger_rp:      same_finger_rp,
+        same_finger_both:    same_finger_both,
+        same_hand_effort:    same_hand_effort,
+        same_hand_effort_im: same_hand_effort_im,
+        positional_effort:   positional_effort,
+        indices:             indices,
+        middles:             middles,
+        rings:               rings,
+        pinkies:             pinkies,
+        alternation:         alternation,
+        text_direction:      text_direction,
+        score:               score,
       }
     end
 
