@@ -18,6 +18,7 @@ module Kilo
     EXTRA_FILES = {
       bigrams_eng_web_2014_1M:      "data/bigrams.eng_web_2014_1M-sentences.txt.yml.zst",
       fast_eng_web_2014_1M:         "data/fast.eng_web_2014_1M-sentences.txt.yml",
+      default_scorer:               "data/default_scorer.yaml",
       score_base:                   "scripts/base_score.rb",
       score:                        "scripts/score.rb",
       common_db:                    "scripts/common_db.rb",
@@ -101,18 +102,27 @@ module Kilo
 
     # Returns filesystem path
     def self.user_file(name : Symbol) : String
-      File.join(CONFIG_DIR, FILES[name])
+      if FILES.has_key? name
+        path = File.join(CONFIG_DIR, FILES[name])
+        if File.file? path
+          path
+        else
+          File.join(SRC_DIR, FILES[name])
+        end
+      elsif EXTRA_FILES.has_key? name
+        EXTRA_FILES[name]
+      else
+        return ""
+      end
     end
 
     # Returns rucksack path
     def self.embedded_file(name : Symbol) : String
-      if FILES.has_key? name
-        File.join(SRC_DIR, FILES[name])
-      elsif EXTRA_FILES.has_key? name
-        File.join(EXTRA_FILES[name])
-      else
+      path = user_file(name)
+      if path == ""
         raise "Embedded: bad symbol name %s" % name
       end
+      return path
     end
 
     # Reads rucksack file into memory
