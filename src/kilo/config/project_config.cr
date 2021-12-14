@@ -8,13 +8,6 @@ module Kilo
 
     include Comandante
 
-    alias KBWeightsConfType = Hash(Key, Int32)
-    alias KBFingersConfType = Hash(Key, Finger)
-    alias KBRowsConfType = Hash(Key, Row)
-    alias KBColumnsConfType = Hash(Key, Column)
-    alias XKBListType = Hash(String, String)
-    alias SideTo32Type = Array(Int32)
-
     @config : NamedTuple(
       kb_weights: KBWeightsConfType,
       kb_fingers: KBFingersConfType,
@@ -31,22 +24,23 @@ module Kilo
       characters: String,
       left_to_32: SideTo32Type,
       right_to_32: SideTo32Type,
-    )
+      improve_config: ImproveConfigType)
 
     getter config
 
     # Returns merged config
     private def get_config
       filename = Embedded.user_file(:config)
+
       config_user = Embedded.read(:config)
       config_default = Embedded.read_rucksack(Embedded.embedded_file(:config))
 
       result = Helper.parse_yaml(config_default, context: filename)
 
-      if config_user != config_default
-        result = result.as_h.merge(Helper.parse_yaml(config_user,
-          context: filename).as_h)
-      end
+      # if config_user != config_default
+      # result = result.as_h.merge(Helper.parse_yaml(config_user,
+      #  context: filename).as_h)
+      # end
 
       if result["characters"].to_s.size != 32
         Cleaner.exit_failure("config characters key needs 32 characters")
@@ -66,6 +60,10 @@ module Kilo
       return result
     end
 
+    def self.get_improve_config(hash)
+      Helper::YamlTo(ImproveConfigType).load(hash.to_yaml)
+    end
+
     private def initialize
       tmp_conf = get_config
 
@@ -79,9 +77,9 @@ module Kilo
         kb_rows:    Embedded::YamlTo(KBRowsConfType).load(:kb_rows, :kb_rows.to_s),
         kb_columns: Embedded::YamlTo(KBColumnsConfType).load(:kb_columns,
           :kb_columns.to_s),
-        xkb_list: Embedded::YamlTo(XKBListType).load(:xkb_list, :xkb_list.to_s),
-        corpus:   tmp_conf["corpus"].as_s,
-        #        fast_directory:          tmp_conf["fast_directory"].as_s,
+        xkb_list:                Embedded::YamlTo(XKBListType).load(:xkb_list, :xkb_list.to_s),
+        corpus:                  tmp_conf["corpus"].as_s,
+        improve_config:          ProjectConfig.get_improve_config(tmp_conf["improve_config"]),
         balance_delta:           tmp_conf["balance_delta"].as_f,
         alternation_min:         tmp_conf["alternation_min"].as_f,
         alternation_max:         tmp_conf["alternation_max"].as_f,
