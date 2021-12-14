@@ -16,3 +16,12 @@ ltr: true
 # basic qwerty like very conservative(need to be 32 characters long)
 characters: abcdefghijklmnopqrstuvwxyz-',;./
 
+improve_config:
+  stage2_count:  10
+  effort_delta: 400
+  filter_factor: 1.01
+  max_half_same_rp: 80
+  max_half_same_both: 400
+  max_half_hand: 200
+  
+
