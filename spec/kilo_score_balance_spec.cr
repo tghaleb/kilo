@@ -18,7 +18,7 @@ describe Kilo::BalanceFilter do
     left, right = Kilo::Utils.string_to_lr(QWERTY, characters)
     balance_score.pass? Utils.left_array_to_u32(left)
 
-    layout_score.scan(left, right, QWERTY, "qwerty")
+    layout_score.scan(left, right, "qwerty")
 
     balance_score.score.should eq(layout_score.score.balance)
   end
