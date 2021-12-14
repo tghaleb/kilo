@@ -14,9 +14,27 @@ module Kilo
   alias SimpleScoresType = Hash(Symbol, Int16 | Array(UInt8) | String)
 
   NULL_SIMPLE_SCORES = SimpleScoresType{
-    :hand    => 0.to_i16,
-    :same    => 0.to_i16,
-    :same_rp => 0.to_i16,
-    :effort  => 0.to_i16,
+    :hand      => 0.to_i16,
+    :hand_im   => 0.to_i16,
+    :same_both => 0.to_i16,
+    :same_rp   => 0.to_i16,
+    :effort    => 0.to_i16,
   }
+
+  alias KBWeightsConfType = Hash(Constants::Key, Int32)
+  alias KBFingersConfType = Hash(Constants::Key, Constants::Finger)
+  alias KBRowsConfType = Hash(Constants::Key, Constants::Row)
+  alias KBColumnsConfType = Hash(Constants::Key, Constants::Column)
+  alias XKBListType = Hash(String, String)
+  alias SideTo32Type = Array(Int32)
+
+  #  alias ImproveConfigType = Hash(String, Int16)
+  alias ImproveConfigType = NamedTuple(
+    stage2_count: Int16,
+    effort_delta: Int16,
+    filter_factor: Float64,
+    # use to filter stage 1
+    max_half_same_rp: Int16,
+    max_half_same_both: Int16,
+    max_half_hand: Int16)
 end
