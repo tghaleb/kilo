@@ -32,33 +32,7 @@ module Kilo
       @min_same_both = min_same_both
     end
 
-    def pass?(side : Array(UInt8), hand : Hand) : Bool
-      reinit_scores
-
-      if hand == Hand::LEFT
-        to_32 = ProjectConfig.instance.config[:left_to_32]
-      else
-        to_32 = ProjectConfig.instance.config[:right_to_32]
-      end
-
-      side.each_index { |i| @char_lookup[side[i]] = KEYS_32[to_32[i]] }
-
-      scan_hand(side, hand)
-
-      @score = (@score_same_finger_rp + @score_adjacent_outward +
-                @score_jumps).to_i16
-
-      @scores[:hand] = (@score_same_finger_rp + @score_adjacent_outward +
-                        @score_jumps).to_i16
-
-      @score_same_both = (@score_same_finger_rp +
-                          @score_same_finger_im).to_i16
-
-      @scores[:same] = (@score_same_finger_rp +
-                        @score_same_finger_im).to_i16
-
-      @scores[:same_rp] = @score_same_finger_rp
-
+    def pass? : Bool
       return (@score <= @min_hand) && (@score_same_both <=
         @min_same_both)
     end
@@ -72,11 +46,21 @@ module Kilo
       @score_adjacent_outward = 0
     end
 
-    private def scan_hand(side : Array(UInt8), hand : Hand) : Nil
+    def scan(side : Array(UInt8), hand : Hand) : Nil
+      reinit_scores
+
+      if hand == Hand::LEFT
+        to_32 = ProjectConfig.instance.config[:left_to_32]
+      else
+        to_32 = ProjectConfig.instance.config[:right_to_32]
+      end
+
       kb_columns = ProjectConfig.instance.config[:kb_columns]
 
       index_pos = Utils.index_pos(hand)
       ring_pos = Utils.ring_pos(hand)
+
+      side.each_index { |i| @char_lookup[side[i]] = KEYS_32[to_32[i]] }
 
       side.each_index do |i|
         char_i = side[i]
@@ -112,6 +96,27 @@ module Kilo
           end
         end
       end
+      @score = (@score_same_finger_rp + @score_adjacent_outward +
+                @score_jumps).to_i16
+
+      @scores[:jumps] = @score_jumps.to_i16
+
+      @scores[:outward] = @score_adjacent_outward.to_i16
+
+      @scores[:hand] = (@score_same_finger_rp + @score_adjacent_outward +
+                        @score_jumps).to_i16
+
+      @scores[:hand_im] = @scores[:hand].as(Int16) + @score_same_finger_im
+
+      @score_same_both = (@score_same_finger_rp +
+                          @score_same_finger_im).to_i16
+
+      @scores[:same_both] = (@score_same_finger_rp +
+                             @score_same_finger_im).to_i16
+
+      @scores[:same_both_j] = @scores[:same_both].as(Int16) + @score_jumps
+
+      @scores[:same_rp] = @score_same_finger_rp
     end
 
     private def case_finger(

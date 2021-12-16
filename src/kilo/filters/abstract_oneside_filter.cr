@@ -18,6 +18,8 @@ module Kilo
     property min_hand
     property max_effort
 
-    abstract def pass?(side : Array(UInt8), hand : Hand) : Bool
+    # abstract def pass?(side : Array(UInt8), hand : Hand) : Bool
+    abstract def pass? : Bool
+    abstract def scan(side : Array(UInt8), hand : Hand) : Nil
   end
 end

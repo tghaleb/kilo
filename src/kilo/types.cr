@@ -14,11 +14,14 @@ module Kilo
   alias SimpleScoresType = Hash(Symbol, Int16 | Array(UInt8) | String)
 
   NULL_SIMPLE_SCORES = SimpleScoresType{
-    :hand      => 0.to_i16,
-    :hand_im   => 0.to_i16,
-    :same_both => 0.to_i16,
-    :same_rp   => 0.to_i16,
-    :effort    => 0.to_i16,
+    :outward     => 0.to_i16,
+    :jumps       => 0.to_i16,
+    :hand        => 0.to_i16,
+    :hand_im     => 0.to_i16,
+    :same_both   => 0.to_i16,
+    :same_rp     => 0.to_i16,
+    :same_both_j => 0.to_i16,
+    :effort      => 0.to_i16,
   }
 
   alias KBWeightsConfType = Hash(Constants::Key, Int32)
