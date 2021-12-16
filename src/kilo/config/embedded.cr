@@ -120,14 +120,14 @@ module Kilo
 
     # Returns rucksack path
     def self.embedded_file(name : Symbol) : String
-      # path = user_file(name)
       if FILES.has_key? name
         return File.join(SRC_DIR, FILES[name])
+      elsif EXTRA_FILES.has_key? name
+        return EXTRA_FILES[name]
       else
         raise "Embedded: bad symbol name %s" % name
       end
       return ""
-      # return path
     end
 
     # Reads rucksack file into memory

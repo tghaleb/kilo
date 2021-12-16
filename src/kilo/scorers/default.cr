@@ -87,8 +87,7 @@ module Kilo
       def initialize
         @config =
           Comandante::Helper::YamlTo(DefaultScorerConfType).load(
-            Embedded.read(:default_scorer),
-            ":default_scorer")
+            Embedded.read(:default_scorer), ":default_scorer")
       end
 
       def score(stats) : ScoreIntType
