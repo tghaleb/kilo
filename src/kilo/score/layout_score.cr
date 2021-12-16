@@ -19,9 +19,15 @@ module Kilo
     @score_alternation : Int64 = 0
     @score_positional_effort : Int64 = 0
     @score_text_direction : Int64 = 0
+    @layout = Array(String).new(size: 32, value: " ")
     @ltr = false
 
+    @left_to_32 : SideTo32Type
+    @right_to_32 : SideTo32Type
+
     def initialize
+      @left_to_32 = ProjectConfig.instance.config[:left_to_32]
+      @right_to_32 = ProjectConfig.instance.config[:right_to_32]
     end
 
     def initialize(characters, bigrams)
@@ -30,18 +36,20 @@ module Kilo
       @bi_lookup = Utils.build_char_bigram_i(characters, bigrams)
 
       @ltr = ProjectConfig.instance.config[:ltr].as(Bool)
+      @left_to_32 = ProjectConfig.instance.config[:left_to_32]
+      @right_to_32 = ProjectConfig.instance.config[:right_to_32]
     end
 
     def score : Score
       return @score
     end
 
-    def scan(left : Array(UInt8), right : Array(UInt8), layout, name : String = "") : Nil
-      left_to_32 = ProjectConfig.instance.config[:left_to_32]
-      right_to_32 = ProjectConfig.instance.config[:right_to_32]
+    def scan(left : Array(UInt8), right : Array(UInt8), name : String = "") : Nil
+      # left_to_32 = ProjectConfig.instance.config[:left_to_32]
+      # right_to_32 = ProjectConfig.instance.config[:right_to_32]
 
-      left.each_index { |i| @char_lookup[left[i]] = KEYS_32[left_to_32[i]] }
-      right.each_index { |i| @char_lookup[right[i]] = KEYS_32[right_to_32[i]] }
+      left.each_index { |i| @char_lookup[left[i]] = KEYS_32[@left_to_32[i]] }
+      right.each_index { |i| @char_lookup[right[i]] = KEYS_32[@right_to_32[i]] }
 
       reinit_scores
 
@@ -50,21 +58,23 @@ module Kilo
 
       set_scores
       @score.name = name
-      @score.layout = layout
     end
 
     # Calculations that are for both hands
     private def two_hand(
       hand : Hand,
       pos : Int32,
-      count : Int64
+      count : Int64,
+      char_i : UInt8
     ) : Nil
       kb_weights = ProjectConfig.instance.config[:kb_weights]
 
       if hand == Hand::LEFT
         @score_balance += count
         @score_positional_effort += (kb_weights[Utils.key_32_left(pos)] * count).to_i16
+        @layout[@left_to_32[pos]] = @characters.sorted[char_i]
       else
+        @layout[@right_to_32[pos]] = @characters.sorted[char_i]
         @score_positional_effort +=
           (kb_weights[Utils.key_32_right(pos)] * count).to_i16
       end
@@ -80,7 +90,7 @@ module Kilo
       side.each_index do |i|
         char_i = side[i]
         char_count = @characters.data_i[char_i]
-        two_hand(hand: hand, pos: i, count: char_count)
+        two_hand(hand: hand, pos: i, count: char_count, char_i: char_i)
 
         key1 = @char_lookup[char_i]
         col1 = kb_columns[key1]
@@ -188,6 +198,7 @@ module Kilo
 
     # Zeros scores at start
     private def reinit_scores
+      #      @layout.clear
       @score_balance = 0
       @score_positional_effort = 0
       @score_alternation = 0
@@ -223,6 +234,7 @@ module Kilo
       @score.inward = @score_adjacent_inward.to_i16
       @score.outward = @score_adjacent_outward.to_i16
       @score.text_direction = @score_text_direction.to_i16
+      @score.layout = @layout.join("")
       @score.calculate_score
     end
   end
