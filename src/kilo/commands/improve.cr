@@ -232,6 +232,8 @@ module Kilo
     end
 
     private def improve_stage1(name, left, right)
+      puts_stage(1)
+
       do_stage1(
         name,
         hand: Hand::LEFT,
@@ -251,6 +253,8 @@ module Kilo
       # add original left/right
       scanner([left], name: name, other_side: right, hand: Hand::RIGHT, ordered: true)
       scanner([right], name: name, other_side: left, hand: Hand::LEFT, ordered: true)
+
+      puts_stage(2)
 
       @pre_scores[Hand::RIGHT].each_index do |i|
         right = @pre_scores[Hand::RIGHT][i][:side].as(Array(UInt8))
@@ -298,7 +302,7 @@ module Kilo
       # FIXME: this can come before all setup of filters plus
       # make filter setup in another function
 
-      STDERR.puts "* improving #{name}"
+      puts_improving(name)
 
       left, right = Utils.get_best_min_effort(left,
         right,
@@ -515,13 +519,13 @@ module Kilo
           tmp << ordered if hand_filter.pass?
         end
         if tmp.size > 20_000_000
-          puts "* captured: " + tmp.size.to_s
+          STDERR.puts "       captured #{hand.to_s}: " + tmp.size.to_s
           scanner(tmp, name: name, other_side: other_side, hand: hand, ordered: true)
           tmp.clear
         end
       end
       unless tmp.empty?
-        puts "* total captured: " + tmp.size.to_s
+        STDERR.puts "     + total captured #{hand.to_s}: " + tmp.size.to_s
         scanner(tmp, name: name, other_side: other_side, hand: hand, ordered: true)
         tmp.clear
         Helper.put_debug("* total permutations: " + counter.to_s)
@@ -561,8 +565,6 @@ module Kilo
     # Scans and scores for an array of left/right
     private def scanner(array, name, other_side, hand = Hand::LEFT,
                         ordered = false)
-      STDERR.puts(" - #{name} #{hand.to_s}")
-
       if hand == Hand::LEFT
         db = @db_left
         array.each do |x|
@@ -808,6 +810,16 @@ module Kilo
     @[AlwaysInline]
     private def stage1_name(name, index)
       name + "_" + index.to_s
+    end
+
+    @[AlwaysInline]
+    private def puts_stage(num)
+      STDERR.puts "  . stage#{num}"
+    end
+
+    @[AlwaysInline]
+    private def puts_improving(name)
+      STDERR.puts "* improving #{name}:"
     end
 
     private def debug_half_effort(filter, name, side)
