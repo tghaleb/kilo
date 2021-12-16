@@ -4,113 +4,12 @@ require "big"
 # order and therefore can't be filtered by any filter that doesn't
 # understand how to filter no-ordered
 module Kilo
-  # one sided effort filter needs a pass?
-  class EffortFilter
-    include Constants
-    @characters = FreqHash.new(1)
-    @side_to_32 = Array(Int32).new
-    @score : Int16 = 0.to_i16
-    @min : Int16 = 10_000.to_i16
-    @kb_weights : Hash(Key, Int32)
-    @index_by_weight = Array(Int32).new
-
-    property min
-    property characters
-    property side_to_32
-    property index_by_weight
-
-    def initialize
-      @kb_weights = ProjectConfig.instance.config[:kb_weights]
-    end
-
-    def initialize(@characters, @side_to_32, @index_by_weight)
-      @kb_weights = ProjectConfig.instance.config[:kb_weights]
-    end
-
-    def score
-      if @score > Int16::MAX
-        return Int16::MAX
-      else
-        return (@score/EFFORT_SCALE).to_i16
-      end
-    end
-
-    def pass_w_ordered?(side) : Bool
-      return scan_w_ordered(side) <= @min
-    end
-
-    #    def pass?(side, ordered = true) : Bool
-    #      return scan(side, ordered) <= @min
-    #    end
-
-    def pass?(side) : Bool
-      return scan(side) <= @min
-    end
-
-    # in general during improvements we will not be using ordered
-    # only for actual left/right or just before exports.
-    def scan_w_ordered(side)
-      @score = 0.to_i16
-      side.each_index do |i|
-        index = @side_to_32[@index_by_weight[i]]
-        w = @characters.data_i[side[i]]
-        key = KEYS_32[index]
-        @score += (@kb_weights[key] * w)
-      end
-
-      return score
-    end
-
-    #    def scan(side, ordered = true)
-    #      @score = 0.to_i16
-    #      if ordered
-    #        side.each_index do |i|
-    #          index = @side_to_32[i]
-    #          w = @characters.data_i[side[i]]
-    #          key = KEYS_32[index]
-    #          @score += (@kb_weights[key] * w)
-    #        end
-    #      else
-    #        side.each_index do |i|
-    #          # FIXME: this is the bug?
-    #          index = @side_to_32[@index_by_weight[i]]
-    #          w = @characters.data_i[side[i]]
-    #          key = KEYS_32[index]
-    #          @score += (@kb_weights[key] * w)
-    #        end
-    #      end
-    #
-    #      return score
-    #    end
-    #
-
-    def scan(side)
-      @score = 0.to_i16
-      side.each_index do |i|
-        index = @side_to_32[i]
-        w = @characters.data_i[side[i]]
-        key = KEYS_32[index]
-        @score += (@kb_weights[key] * w)
-      end
-
-      return score
-    end
-
-    # need a pass?
-  end
-
   class Improve < Command
     # allow up to 400 delta
 
-    SLOW2_COUNT             =  10
-    EFFORT_DELTA            = 400
-    PERMUTATIONS_MAX        =   7
-    SIDE_SAME_FINGER_RP_MAX = 70.to_i16
-    FILTER_FACTOR           = 1.01
-    SAME_HAND_MAX           = 500.to_i16
-    SAME_FINGER_BOTH_MAX    = 700.to_i16
-    # SAME_HAND_MAX  = 600.to_i16
-    EMPTY_U8_ARRAY = Array(UInt8).new
+    PERMUTATIONS_MAX   = 7
+    EMPTY_U8_ARRAY     = Array(UInt8).new
+    EMPTY_STRING_ARRAY = Array(String).new
 
     @db = DB_Helper.new
 
@@ -125,33 +24,21 @@ module Kilo
     @right_sided_filter = OneSidedFilter.new
     @left_sided_short_filter = OneSidedFilter.new
     @right_sided_short_filter = OneSidedFilter.new
-    @l_effort_score = EffortFilter.new
-    @r_effort_score = EffortFilter.new
+    @l_effort_score = HalfEffortFilter.new
+    @r_effort_score = HalfEffortFilter.new
 
-    # fixme how to get default
-
-    #    @pre_scores : Hash(Hand, SimpleScoresType) = {
-    #      Hand::LEFT  => NULL_SIMPLE_SCORES.clone,
-    #      Hand::RIGHT => NULL_SIMPLE_SCORES.clone,
-    #    }
-    #
     @pre_scores : Hash(Hand, Array(SimpleScoresType)) = {
-      Hand::LEFT  => Array(SimpleScoresType).new(size: 2, value: NULL_SIMPLE_SCORES.clone),
-      Hand::RIGHT => Array(SimpleScoresType).new(size: 2, value: NULL_SIMPLE_SCORES.clone),
+      Hand::LEFT  => Array(SimpleScoresType).new(size: 3, value: NULL_SIMPLE_SCORES.clone),
+      Hand::RIGHT => Array(SimpleScoresType).new(size: 3, value: NULL_SIMPLE_SCORES.clone),
     }
 
     @simple_results = Array(SimpleScoresType).new
-
-    #   @best_right_scores : Hash(Symbol, Int16) = OneSidedFilter::NULL_SCORES.clone
-    #   @best_left_scores : Hash(Symbol, Int16) = OneSidedFilter::NULL_SCORES.clone
-
-    # @best_side_same_score : Int16 = 0.to_i16
-    # @best_side_same_rp_score : Int16 = 0.to_i16
-    # @best_side_hand_score : Int16 = 0.to_i16
-    # @best_side = Array(UInt8).new
+    @config : ImproveConfigType
 
     def initialize
       super
+
+      @config = ProjectConfig.instance.config[:improve_config]
 
       left_to_32 = ProjectConfig.instance.config[:left_to_32]
       right_to_32 = ProjectConfig.instance.config[:right_to_32]
@@ -161,7 +48,7 @@ module Kilo
 
       @eval = Eval.new
 
-      @lr_filter = SameHandEvalFilter.new(SAME_HAND_MAX)
+      @lr_filter = SameHandEvalFilter.new(@config[:max_half_hand])
     end
 
     def run(
@@ -171,6 +58,8 @@ module Kilo
     ) : Nil
       assert_inside_project_dir()
       opts_args(global_opts, opts, args)
+
+      Helper.debug_inspect(@config, "@config")
 
       @args.each do |x|
         Helper.assert_file(x)
@@ -190,9 +79,43 @@ module Kilo
 
       Helper.timer {
         improve_layouts(out_db)
-      # scores should be builtin
-      # add_scores(out_db)
       }
+    end
+
+    private def improve_layouts(db_out)
+      @layouts.each do |x|
+        name = x[:name]
+
+        Helper.timer {
+          improve(x, db_out)
+        }
+
+        next if @opts["fast"].as(Bool)
+
+        results = prepare_results
+
+        # append original layout
+        results << x[:k32] + " " + x[:name]
+
+        save_results(results, db_out)
+      end
+    end
+
+    private def prepare_results
+      layouts_left, layouts_right = improved_selection
+
+      return EMPTY_STRING_ARRAY if layouts_left.empty? && layouts_right.empty?
+
+      Helper.debug_inspect(layouts_left.size, "ll_size")
+      Helper.debug_inspect(layouts_right.size, "rr_size")
+
+      layouts_lookup_left = build_layouts_lookup(layouts_left)
+      layouts_lookup_right = build_layouts_lookup(layouts_right)
+
+      Helper.debug_inspect(layouts_lookup_right.keys, "layout right keys")
+      Helper.debug_inspect(layouts_lookup_left.keys, "layout left keys")
+
+      do_join(layouts_lookup_left, layouts_lookup_right)
     end
 
     private def do_join(left_lookup, right_lookup) : Array(String)
@@ -205,40 +128,8 @@ module Kilo
         left_lookup = right_lookup
       end
 
-      #      side1_lookup.each_key do |k|
-      #        unless side2_lookup.has_key? k
-      #          Cleaner.exit_failure("layout #{k} is missing in the left file")
-      #        end
-      #        val_r = right_lookup[k]
-      #        val_l = left_lookup[k]
-      #        lefts = Array(Array(UInt8)).new
-      #        rights = Array(Array(UInt8)).new
-      #
-      #        char_array = (val_r[0] + val_l[0]).split("").uniq
-      #        filter_characters(char_array)
-      #        chars = @characters
-      #
-      #        val_r.each_index do |i|
-      #          tmp, right = Utils.string_to_lr(val_r[i], chars)
-      #          rights << right
-      #        end
-      #        val_l.each_index do |i|
-      #          left, tmp = Utils.string_to_lr(val_l[i], chars)
-      #          lefts << left
-      #        end
-      #
-      #        counter = 0
-      #        lefts.each_cartesian(rights) do |x|
-      #          results << Utils.lr_to_string(x[0], x[1], chars.sorted) + " " + k + "-" + counter.to_s
-      #          counter += 1
-      #        end
-      #      end
-
       right_lookup.each_key do |k|
-        unless left_lookup.has_key? k
-          Cleaner.exit_failure("layout #{k} is missing in the left file")
-        end
-
+        next unless left_lookup.has_key? k
         val_r = right_lookup[k]
         val_l = left_lookup[k]
 
@@ -264,6 +155,7 @@ module Kilo
         lefts.uniq!
         rights.uniq!
 
+        # FIXME: only do this if we have 2? else no cartesian
         lefts.each_cartesian(rights) do |x|
           results << Utils.lr_to_string(x[0], x[1], chars.sorted) + " " + k + "-" + counter.to_s
           counter += 1
@@ -272,26 +164,10 @@ module Kilo
       return results
     end
 
-    private def db_exists?(name) : Bool
-      if name == ""
-        Cleaner.exit_failure("a layout name is required for optimization")
-      end
-
-      if File.file? db_name(name, "left")
-        return true
-      else
-        return false
-      end
-    end
-
     # We do selection with sql to find best results
-    private def improved_selection(name)
+    private def improved_selection
       layouts_left = Array(Score).new
       layouts_right = Array(Score).new
-
-      # We read from db
-      # db_left = DB_Helper.new(db_name(name, "left"))
-      # db_right = DB_Helper.new(db_name(name, "right"))
 
       @args.each do |file|
         sql = Utils.read_user_sql(
@@ -299,9 +175,6 @@ module Kilo
         layouts_left.concat(Utils.query_layouts_db(@db_left, sql))
         layouts_right.concat(Utils.query_layouts_db(@db_right, sql))
       end
-
-      # db_left.close
-      # db_right.close
 
       return {layouts_left.uniq, layouts_right.uniq}
     end
@@ -320,68 +193,15 @@ module Kilo
       return layouts_lookup
     end
 
-    private def improve_layouts(db_out)
-      Helper.put_verbose("hi")
-      @layouts.each do |x|
-        name = x[:name]
-
-        # if db_exists? name
-        #   STDERR.puts ("* #{name} already improved.")
-        # else
-        Helper.timer {
-          improve(x, db_out)
-        }
-        # FIXME: add this later? or remove
-        # add_left_right_scores(name)
-        # end
-
-        next if @opts["fast"].as(Bool)
-
-        layouts_left, layouts_right = improved_selection(name)
-
-        next if layouts_left.empty? && layouts_right.empty?
-
-        Helper.debug_inspect(layouts_left.size, "ll_size")
-        Helper.debug_inspect(layouts_right.size, "rr_size")
-
-        layouts_lookup_left = build_layouts_lookup(layouts_left)
-        layouts_lookup_right = build_layouts_lookup(layouts_right)
-        #    next if layouts_lookup_left.empty? || layouts_lookup_right.empty?
-
-        results = do_join(layouts_lookup_left, layouts_lookup_right)
-
-        save_results(results, db_out)
-      end
-    end
-
-    private def setup_eval_options(db_out)
-      options = OptionsHash.new
-      options["out"] = db_out
-      options["print"] = false
-      #      options["score"] = ""
-
-      # FIXME: remove score option
-
-      # score_script = @opts["score"].to_s
-      score_script = ""
-
-      #      unless score_script == ""
-      #        score_script = File.join(Kilo.pwd, score_script)
-      #      end
-      #      return options, score_script
-      return options
-    end
-
     private def save_results(results, db_out)
       return if results.size == 0
 
       if db_out != ""
-        # options, score_script = setup_eval_options(db_out)
         options = setup_eval_options(db_out)
         db = Utils.create_db(db_out)
         _layouts = Utils.load_user_layouts(results)
 
-        puts "will save to " + db_out
+        STDERR.puts "will save to " + db_out
 
         @eval.opts = options
         # @eval.eval_layouts(_layouts, db, score_script, @lr_filter)
@@ -391,222 +211,62 @@ module Kilo
       end
     end
 
-    #    private def add_scores(file)
-    #      if File.file? file
-    #        Utils.update_score(file, @opts["score"].to_s)
-    #      end
-    #    end
-    #
-    #    private def add_left_right_scores(name)
-    #      if @opts["score"] != ""
-    #        ["left", "right"].each do |side|
-    #          add_scores(db_name(name, side))
-    #        end
-    #      end
-    #    end
-
     private def set_side_filter_min(filter, side, hand)
-      filter.pass?(side, hand: hand)
+      filter.scan(side, hand: hand)
 
       # get score and if score is above max use max
-      max_hand = (filter.score * FILTER_FACTOR).to_i16
-      if max_hand > SAME_HAND_MAX
-        max_hand = SAME_HAND_MAX
+      max_hand = (filter.score * @config[:filter_factor]).to_i16
+      if max_hand > @config[:max_half_hand]
+        max_hand = @config[:max_half_hand]
       end
+
       filter.min_hand = max_hand
 
-      max_both = (filter.score_same_both * FILTER_FACTOR).to_i16
-      if max_both > SAME_FINGER_BOTH_MAX
-        max_both = SAME_FINGER_BOTH_MAX
+      max_both = (filter.score_same_both * @config[:filter_factor]).to_i16
+      if max_both > @config[:max_half_same_both]
+        max_both = @config[:max_half_same_both]
       end
+
       filter.min_same_both = max_both
-
-      Helper.debug_inspect(
-        filter.score,
-        "(side_filter #{hand.to_s}) score"
-      )
-      Helper.debug_inspect(
-        filter.min_hand,
-        "(side_filter #{hand.to_s}) min_hand"
-      )
-      Helper.debug_inspect(
-        filter.min_same_both,
-        "(side_filter #{hand.to_s}) min_same_both"
-      )
+      debug_half_hand(filter, hand)
     end
 
-    private def set_side_max_effort(filter, side, hand)
-      filter.pass?(side, hand: hand)
-      # filter.min = (filter.score * FILTER_FACTOR).to_i16
-    end
-
-    # Does optimization or left and right
-    private def improve(layout, db_out)
-      # all this can be passed to improve
-      name = layout[:name]
-      layout_s = layout[:k32]
-      new_chars = layout_s.split("")
-
-      filter_characters(new_chars)
-
-      # FIXME: set characters/bigrams again don't create a new one
-      @layout_score = LayoutScore.new(
-        characters: @characters.clone,
-        bigrams: @bigrams
-      )
-
-      # FIXME: set characters/bigrams again don't create a new one
-      @left_sided_filter = OneSidedFilter.new(
-        @characters.clone,
-        @bigrams,
-      )
-
-      # FIXME: set characters/bigrams again don't create a new one
-      #      @left_sided_short_filter = OneSidedFilter.new(
-      #        @characters.clone,
-      #        @bigrams,
-      #      )
-      #
-      # FIXME: set characters/bigrams again don't create a new one
-      @right_sided_filter = OneSidedFilter.new(
-        @characters.clone,
-        @bigrams,
-      )
-
-      @l_effort_score = EffortFilter.new(
-        @characters.clone,
-        ProjectConfig.instance.config[:left_to_32],
-        @left_32_index_by_weight
-      )
-      @r_effort_score = EffortFilter.new(
-        @characters.clone,
-        ProjectConfig.instance.config[:right_to_32],
-        @right_32_index_by_weight
-      )
-
-      # FIXME: set characters/bigrams again don't create a new one
-      #      @right_sided_short_filter = OneSidedFilter.new(
-      #        @characters.clone,
-      #        @bigrams,
-      #      )
-      #
-      left, right = Utils.string_to_lr(layout_s, @characters)
-
-      # do we need a min effort here?
-
-      # FIXME: this can come before all setup of filters plus
-      # make filter setup in another function
-
-      STDERR.puts "* improving #{name}"
-
-      set_side_filter_min(@left_sided_filter, left, Hand::LEFT)
-      set_side_filter_min(@right_sided_filter, right, Hand::RIGHT)
-
-      @layout_score.scan(left, right, layout_s, name)
-
-      @l_effort_score.scan(left)
-      @l_effort_score.min = @l_effort_score.score + EFFORT_DELTA
-
-      @r_effort_score.scan(right)
-      @r_effort_score.min = @r_effort_score.score + EFFORT_DELTA
-
-      do_pre_products(
+    private def improve_stage1(name, left, right)
+      do_stage1(
         name,
         hand: Hand::LEFT,
         side: left,
         other_side: right,
       )
 
-      do_pre_products(
+      do_stage1(
         name,
         hand: Hand::RIGHT,
         side: right,
-        other_side: left, # direction: "right"
+        other_side: left,
       )
+    end
 
-      if @opts["fast"].as(Bool)
-        save_fast(db_out)
-        return
-      end
-
-      Utils.reinit_db(@db_left)
-      Utils.reinit_db(@db_right)
+    private def improve_stage2(name, left, right)
+      # add original left/right
+      scanner([left], name: name, other_side: right, hand: Hand::RIGHT, ordered: true)
+      scanner([right], name: name, other_side: left, hand: Hand::LEFT, ordered: true)
 
       @pre_scores[Hand::RIGHT].each_index do |i|
-        # right = @pre_scores[Hand::RIGHT][:side].as(Array(UInt8))
-        # left = @pre_scores[Hand::LEFT][:side].as(Array(UInt8))
-
         right = @pre_scores[Hand::RIGHT][i][:side].as(Array(UInt8))
         left = @pre_scores[Hand::LEFT][i][:side].as(Array(UInt8))
 
-        set_side_filter_min(@left_sided_filter, left, Hand::LEFT)
-        set_side_filter_min(@right_sided_filter, right, Hand::RIGHT)
+        # add stage1 originals
+        scanner([left], name: name, other_side: right, hand: Hand::RIGHT, ordered: true)
+        scanner([right], name: name, other_side: left, hand: Hand::LEFT, ordered: true)
 
-        # set_side_filter_min(@left_sided_short_filter, left[0..9], Hand::LEFT)
-        # set_side_filter_min(@right_sided_short_filter, right[0..9], Hand::RIGHT)
+        # FIXME: lr get switched in the second run so what is this? and
+        # does it work
+        # and do we have something broken as we switch sides, with
+        # filters
 
-        @layout_score.scan(left, right, layout_s, name)
-
-        #      Helper.debug_inspect(
-        #        @layout_score.score.same_finger_rp,
-        #        "#{name} same_finger_rp"
-        #      )
-        #      Helper.debug_inspect(
-        #        @layout_score.score.same_finger_im,
-        #        "#{name} same_finger_im"
-        #      )
-        #      Helper.debug_inspect(
-        #        @layout_score.score.positional_effort,
-        #        "#{name} positional_effort"
-        #      )
-        #
-        # FIXME: set characters/bigrams again don't create a new one
-
-        @l_effort_score.scan(left)
-        @l_effort_score.min = @l_effort_score.score + EFFORT_DELTA
-
-        #      Helper.debug_inspect(
-        #        @l_effort_score.score,
-        #        "#{name} (l_effort_filter) score"
-        #      )
-        #      Helper.debug_inspect(
-        #        @l_effort_score.min,
-        #        "#{name} (l_effort_filter) min"
-        #      )
-        #
-        # FIXME: set characters/bigrams again don't create a new one
-        @r_effort_score.scan(right)
-        @r_effort_score.min = @r_effort_score.score + EFFORT_DELTA
-
-        # Helper.debug_inspect(
-        #  @r_effort_score.score,
-        #  "#{name} (r_effort_filter) score"
-        # )
-        # Helper.debug_inspect(
-        #  @r_effort_score.min,
-        #  "#{name} (r_effort_filter) min"
-        # )
-
-        @layout_score.scan(left, right, layout_s, name)
-
-        # just get the score and set it to min
-        @lr_filter.pass?(@layout_score.score)
-        @lr_filter.min_hand = (@lr_filter.score * FILTER_FACTOR).to_i16
-        @lr_filter.min_same_both = (@lr_filter.score_same_both * FILTER_FACTOR).to_i16
-        @lr_filter.min_effort = (@lr_filter.score_effort + (EFFORT_DELTA*2)).to_i16
-
-        #      Utils.debug_diff_layouts(left, right, _left, right)
-
-        left, right = Utils.get_best_min_effort(left,
-          right,
-          @left_32_index_by_weight,
-          @right_32_index_by_weight,
-          @characters.data_i,
-          delta: EFFORT_DELTA)
-
-        #  Utils.debug_diff_layouts(left, right, l1, r1)
-        #  puts l1.inspect
-        #  puts r1.inspect
+        setup_filters_min(left, right, name)
+        setup_lr_filter
 
         do_products(
           name,
@@ -614,6 +274,7 @@ module Kilo
           side: left,
           other_side: right,
         )
+
         do_products(
           name,
           hand: Hand::RIGHT,
@@ -623,21 +284,66 @@ module Kilo
       end
     end
 
+    # Does optimization or left and right
+    private def improve(layout, db_out)
+      # all this can be passed to improve
+      name = layout[:name]
+      layout_s = layout[:k32]
+      setup_filters(layout_s)
+
+      left, right = Utils.string_to_lr(layout_s, @characters)
+
+      # do we need a min effort here?
+
+      # FIXME: this can come before all setup of filters plus
+      # make filter setup in another function
+
+      STDERR.puts "* improving #{name}"
+
+      left, right = Utils.get_best_min_effort(left,
+        right,
+        @left_32_index_by_weight,
+        @right_32_index_by_weight,
+        @characters.data_i,
+        delta: @config[:effort_delta])
+
+      setup_filters_min(left, right, name)
+      # FIXME: not here if any before but not here
+
+      #      _left, _right = Utils.get_best_effort(left,
+      #        right,
+      #        @left_32_index_by_weight,
+      #        @right_32_index_by_weight)
+      #
+      improve_stage1(name, left, right)
+
+      if @opts["fast"].as(Bool)
+        save_fast(db_out)
+        return
+      end
+
+      Utils.reinit_db(@db_left)
+      Utils.reinit_db(@db_right)
+
+      improve_stage2(name, left, right)
+    end
+
     private def save_fast(db_out)
       @db.close
       @db = Utils.create_db(db_out)
 
       @pre_scores[Hand::LEFT].each_index do |i|
-        left = @pre_scores[Hand::LEFT][i][:side].as(Array(UInt8))
+        ldata = @pre_scores[Hand::LEFT][i]
+        left = ldata[:side].as(Array(UInt8))
         right = @pre_scores[Hand::RIGHT][i][:side].as(Array(UInt8))
-        name = @pre_scores[Hand::LEFT][i][:name].as(String)
+        name = ldata[:name].as(String)
 
-        #        left = @pre_scores[Hand::LEFT][:side].as(Array(UInt8))
-        #        right = @pre_scores[Hand::RIGHT][:side].as(Array(UInt8))
-        #        name = @pre_scores[Hand::LEFT][:name].as(String)
+        Helper.debug_inspect(left, "left " + name)
+        Helper.debug_inspect(right, "right " + name)
+
         layout = Utils.lr_to_string(left, right, @characters.sorted)
 
-        @layout_score.scan(left, right, layout, name + "-0")
+        @layout_score.scan(left, right, name)
 
         @db.db.exec(SQL_TBL_LAYOUTS_INSERT, *@layout_score.score.values)
         @db.db.exec(UPDATE_SCORE_SQL, @layout_score.score.score, @layout_score.score.layout)
@@ -649,33 +355,60 @@ module Kilo
       if hand == Hand::LEFT
         hand_filter = @left_sided_filter
         effort_filter = @l_effort_score
-        #    side_scores = @best_left_scores
       else
         hand_filter = @right_sided_filter
         effort_filter = @r_effort_score
-        #    side_scores = @best_right_scores
       end
-      # return hand_filter, effort_filter, side_scores
       return hand_filter, effort_filter
     end
 
-    # FIXME: rename?
-    private def do_pre_products(
+    private def multi_filter(
+      hand,
+      index,
+      scores,
+      keys
+    )
+      key = keys.shift
+      if @pre_scores[hand][index][key].as(Int16) > scores[key].as(Int16)
+        set_side_data(index, hand, scores)
+      elsif @pre_scores[hand][index][key].as(Int16) == scores[key].as(Int16)
+        multi_filter(
+          hand: hand,
+          index: index,
+          scores: scores,
+          keys: keys
+        ) if keys.size != 0
+      end
+    end
+
+    @[AlwaysInline]
+    private def good_half_scores?(scores)
+      # FIXME: use constants
+      (scores[:hand].as(Int16) < @config[:max_half_hand]) &&
+        (scores[:same_rp].as(Int16) < @config[:max_half_same_rp]) &&
+        (scores[:same_both].as(Int16) < @config[:max_half_same_both])
+    end
+
+    private def do_stage1(
       name : String,
       hand : Hand,
       side : Array(UInt8),
       other_side : Array(UInt8)
-      #  direction : String
     )
       hand_filter, effort_filter = get_hand_filters(hand)
 
       side_p_ordered = order_side_by_position(side, hand)
-      hand_filter.pass?(side_p_ordered, hand: hand)
+      hand_filter.scan(side_p_ordered, hand: hand)
+
+      scores = hand_filter.scores
+      scores[:effort] = effort_filter.score
+      scores[:name] = name
+      scores[:side] = side_p_ordered
 
       # set starting point
-      set_side_data(0, name, hand, hand_filter, effort_filter, side_p_ordered)
-      set_side_data(1, name, hand, hand_filter, effort_filter, side_p_ordered)
-      #      set_side_data(name, hand, hand_filter, effort_filter, side_p_ordered)
+      set_side_data(0, hand, scores)
+      set_side_data(1, hand, scores)
+      set_side_data(2, hand, scores)
 
       char_by_weight(hand, side).each do |lookup|
         perm = side_permutations(lookup)
@@ -683,65 +416,46 @@ module Kilo
         permutations_product(perm).each do |x|
           # Important this is what we work with
           side_p_ordered = order_side_by_position(x, hand)
-          hand_filter.pass?(side_p_ordered, hand: hand)
+          hand_filter.scan(side_p_ordered, hand: hand)
 
           # test for effort
           # sort order best_side, best_rp, best_hand, best effort
           next unless effort_filter.pass?(side_p_ordered)
 
-          # FIXME: make a function
-          if @pre_scores[hand][1][:hand].as(Int16) >
-               hand_filter.scores[:hand].as(Int16)
-            set_side_data(1, name, hand, hand_filter, effort_filter, side_p_ordered)
-          elsif @pre_scores[hand][1][:hand].as(Int16) ==
-                  hand_filter.scores[:hand].as(Int16)
-            if @pre_scores[hand][1][:same].as(Int16) > hand_filter.scores[:same].as(Int16)
-              set_side_data(1, name, hand, hand_filter, effort_filter, side_p_ordered)
-            elsif @pre_scores[hand][1][:same].as(Int16) == hand_filter.scores[:same].as(Int16)
-              if @pre_scores[hand][1][:effort].as(Int16) > effort_filter.score
-                set_side_data(1, name, hand, hand_filter, effort_filter, side_p_ordered)
-              end
-            end
-          end
+          scores = hand_filter.scores
+          scores[:effort] = effort_filter.score
+          scores[:side] = side_p_ordered
+          scores[:name] = name
 
-          if @pre_scores[hand][0][:same].as(Int16) >
-               hand_filter.scores[:same].as(Int16)
-            set_side_data(0, name, hand, hand_filter, effort_filter, side_p_ordered)
-          elsif @pre_scores[hand][0][:same].as(Int16) ==
-                  hand_filter.scores[:same].as(Int16)
-            if @pre_scores[hand][0][:same_rp].as(Int16) > hand_filter.scores[:same_rp].as(Int16)
-              set_side_data(0, name, hand, hand_filter, effort_filter, side_p_ordered)
-            elsif @pre_scores[hand][0][:same_rp].as(Int16) == hand_filter.scores[:same_rp].as(Int16)
-              if @pre_scores[hand][0][:hand].as(Int16) >
-                   hand_filter.scores[:hand].as(Int16)
-                set_side_data(0, name, hand, hand_filter, effort_filter, side_p_ordered)
-              elsif @pre_scores[hand][0][:hand].as(Int16) ==
-                      hand_filter.scores[:hand].as(Int16)
-                if @pre_scores[hand][0][:effort].as(Int16) > effort_filter.score
-                  set_side_data(0, name, hand, hand_filter, effort_filter, side_p_ordered)
-                end
-                # effort_score
-                # make effort score a hash that you can clone or
-                # something like that.
-                # if @best_side_same_rp_score < hand_filter.score_same_finger_rp
-              end
-            end
-          end
+          next unless good_half_scores?(scores)
+
+          multi_filter(
+            hand: hand,
+            index: 0,
+            scores: scores,
+            keys: [:same_both, :same_rp, :hand, :effort]
+          )
+
+          multi_filter(
+            hand: hand,
+            index: 1,
+            scores: scores,
+            keys: [:same_both_j, :same_rp, :jumps, :outward, :effort] # keys: [:hand, :same_both, :same_rp, :effort]
+          )
+
+          multi_filter(
+            hand: hand,
+            index: 2,
+            scores: scores,
+            keys: [:hand_im, :hand, :effort]
+          )
         end
       end
       Helper.debug_inspect(@pre_scores, "pre best_side_scores " + hand.to_s)
     end
 
-    private def set_side_data(index, name, hand, hand_filter, effort_filter, side_p_ordered)
-      @pre_scores[hand][index] = hand_filter.scores.clone
-      @pre_scores[hand][index][:effort] = effort_filter.score
-      @pre_scores[hand][index][:side] = side_p_ordered
-      @pre_scores[hand][index][:name] = name
-
-      #      @pre_scores[hand] = hand_filter.scores.clone
-      #      @pre_scores[hand][:effort] = effort_filter.score
-      #      @pre_scores[hand][:side] = side_p_ordered
-      #      @pre_scores[hand][:name] = name
+    private def set_side_data(index, hand, scores)
+      @pre_scores[hand][index] = scores.clone
     end
 
     private def do_products(
@@ -749,11 +463,15 @@ module Kilo
       hand : Hand,
       side : Array(UInt8),
       other_side : Array(UInt8)
-      #      direction : String
     )
       direction = hand.to_s.downcase
 
       hand_filter, effort_filter = get_hand_filters(hand)
+      # use
+      # FIXME: does this work?
+      # hand_filter = @left_sided_filter
+      # effort_filter = @l_effort_score
+
       counter = 0
       tmp = Array(Array(UInt8)).new
       tmp << side
@@ -761,29 +479,41 @@ module Kilo
       # Important this is what we work with
       side_w_ordered = order_side_by_weight(side, hand)
 
-      last_n = side_w_ordered[SLOW2_COUNT..-1]
+      s_count = @config[:stage2_count]
+      last_n = side_w_ordered[s_count..-1]
 
       # FIXME: do this outside? or here
       perm_n = last_n.permutations
 
-      side_w_ordered[0..SLOW2_COUNT - 1].each_permutation(SLOW2_COUNT) do |x|
+      # if hand == Hand::RIGHT
+      debug_half_effort(effort_filter, name, "right")
+      debug_half_hand(hand_filter, hand)
+      # end
+      # Cleaner.exit_success
+
+      side_w_ordered[0..s_count - 1].each_permutation(s_count) do |x|
         counter += 1
 
         # Here x is w_ordered not by position
         next unless effort_filter.pass_w_ordered?(x + last_n)
-        next unless hand_filter.pass?(order_side_by_position(x + last_n, hand), hand: hand)
+        # FIXME hand_filter? does it need hand?
 
-        # permutations_product will filter and returns ordered
-        # tmp.concat(permutations_product([[x], perm_n], hand))
+        hand_filter.scan(order_side_by_position(x + last_n, hand), hand: hand)
+        next unless hand_filter.pass?
+
+        #   Helper.debug_inspect(hand_filter.scores, "do_products scores " + hand.to_s)
+        #   Helper.debug_inspect(hand_filter.min_hand, "do_products min_hand " + hand.to_s)
+        #   Helper.debug_inspect(hand_filter.min_same_both, "do_products min_same_both " + hand.to_s)
 
         permutations_product([[x], perm_n]).each do |p|
-          ordered = order_side_by_position(p, hand: hand)
+          next unless effort_filter.pass_w_ordered?(p)
+
           # FIXME: try order only last_n and have others pre ordered?
           # or what?
-          tmp << ordered if (effort_filter.pass?(ordered) &&
-                            hand_filter.pass?(ordered, hand))
+          ordered = order_side_by_position(p, hand: hand)
+          hand_filter.scan(ordered, hand)
+          tmp << ordered if hand_filter.pass?
         end
-        #
         if tmp.size > 20_000_000
           puts "* captured: " + tmp.size.to_s
           scanner(tmp, name: name, other_side: other_side, hand: hand, ordered: true)
@@ -796,10 +526,6 @@ module Kilo
         tmp.clear
         Helper.put_debug("* total permutations: " + counter.to_s)
       end
-    end
-
-    private def db_name(name, hand)
-      return "db/#{name}-#{hand}.db"
     end
 
     # Better letters first
@@ -835,70 +561,51 @@ module Kilo
     # Scans and scores for an array of left/right
     private def scanner(array, name, other_side, hand = Hand::LEFT,
                         ordered = false)
-      STDERR.puts(" - #{name}")
-      STDERR.puts(" - #{hand.to_s}")
-      @db.close
-      # @db = Utils.create_db(db_name(name, hand.to_s.downcase))
-      # drop tables
+      STDERR.puts(" - #{name} #{hand.to_s}")
 
       if hand == Hand::LEFT
-        # FIXME: reinit outside?
         db = @db_left
         array.each do |x|
           _tmp = x.clone
-          unless ordered
-            x = order_side_by_position(x, hand)
-            next unless @l_effort_score.pass?(x)
-            next unless @left_sided_filter.pass?(x, hand: hand)
-          end
+          #          unless ordered
+          #            x = order_side_by_position(x, hand)
+          #            next unless @l_effort_score.pass?(x)
+          #            next unless @left_sided_filter.pass?(x, hand: hand)
+          #          end
           scan(x, other_side, name, db)
         end
       else
         db = @db_right
         array.each do |x|
           _tmp = x.clone
-          unless ordered
-            x = order_side_by_position(x, hand)
-            next unless @r_effort_score.pass?(x)
-            next unless @right_sided_filter.pass?(x, hand: hand)
-          end
+          #          unless ordered
+          #            x = order_side_by_position(x, hand)
+          #            next unless @r_effort_score.pass?(x)
+          #            next unless @right_sided_filter.pass?(x, hand: hand)
+          #          end
           scan(other_side, x, name, db)
         end
       end
-      # @db.close
     end
 
     # Scans, Scores and Writes to db
     private def scan(left, right, name, db)
       layout = Utils.lr_to_string(left, right, @characters.sorted)
 
-      @layout_score.scan(left, right, layout, name)
+      @layout_score.scan(left, right, name)
 
-      if @lr_filter.pass? @layout_score.score
-        db.db.exec(SQL_TBL_LAYOUTS_INSERT, *@layout_score.score.values)
-        # db.db.exec(UPDATE_SCORE_SQL, @layout_score.score.score, @layout_score.score.layout)
-      end
+      # fixm this filter
+      # if @lr_filter.pass? @layout_score.score
+      db.db.exec(SQL_TBL_LAYOUTS_INSERT, *@layout_score.score.values)
+      # db.db.exec(UPDATE_SCORE_SQL, @layout_score.score.score, @layout_score.score.layout)
+      # end
     end
 
     # Returns the product of two arrays (of permutations)
-    # private def get_products(one : Array(Array(UInt8)), two : Array(Array(UInt8)), hand) : Array(Array(UInt8))
     private def get_products(one : Array(Array(UInt8)), two : Array(Array(UInt8))) : Array(Array(UInt8))
-      #      if hand == Hand::LEFT
-      #        effort_filter = @l_effort_score
-      #        hand_filter = @left_sided_filter
-      #      else
-      #        effort_filter = @r_effort_score
-      #        hand_filter = @right_sided_filter
-      #      end
-      #
       res = Array(Array(UInt8)).new
       one.each_cartesian(two) do |x|
         y = x[0].clone.concat(x[1])
-
-        # FIXME: these products are sub products
-        #        ordered = order_side_by_position(y, direction: hand)
-        #        next unless effort_filter.pass_w_ordered?(ordered)
-        #        next unless hand_filter.pass?(ordered, hand: hand)
         res << y
       end
       return res
@@ -908,7 +615,6 @@ module Kilo
       result1 = ar1.clone
       ar2_rev = ar2.sort.reverse
       result2 = ar2_rev.clone
-      # ar2_sorted.each_index do |i|
       (ar2.size - 1).downto(0) do |i|
         break unless result1.size < PERMUTATIONS_MAX
         # added
@@ -924,21 +630,6 @@ module Kilo
       else
         return result1, result2
       end
-
-      #      if (ar1.size + ar2.size) < PERMUTATIONS_MAX
-      #        result2.each_index do |i|
-      #          break unless result1.size < PERMUTATIONS_MAX
-      #          result1 << result2[i]
-      #        end
-      #        #  rev_result = result[tmp_key].sort.reverse
-      #        #  result[last_w].concat(rev_result)
-      #        #  result.delete tmp_key
-      #
-      #        # FIXME: do by iterations
-      #        return ar1 + ar2, EMPTY_U8_ARRAY
-      #      else
-      #        return ar1, ar2
-      #      end
     end
 
     private def combine_weights(hash, step, from = 0)
@@ -980,7 +671,6 @@ module Kilo
     end
 
     # Fixme: is this a util function
-    # private def char_by_weight(hand : Hand, side : Array(UInt8)) : Hash(Int32, Array(UInt8))
     private def char_by_weight(hand : Hand, side : Array(UInt8)) : Array(Hash(Int32, Array(UInt8)))
       result = Array(Hash(Int32, Array(UInt8))).new
       result << Hash(Int32, Array(UInt8)).new
@@ -1008,92 +698,8 @@ module Kilo
 
       result[0] = combine_weights(result[-1], 2)
 
-      # FIXME: combine only some weights
-
-      #      if @slow > 0
-      #        result << combine_weights(result[-1], 2)
-      #        result << combine_weights(result[-2], 2, from: 1)
-      #      end
-      #
-      # not needed
-      #      if @slow > 1
-      #        result << combine_weights(result[-3], 3)
-      #        result << combine_weights(result[-4], 3, from: 1)
-      #        # result << combine_weights(result[-5], 3, from: 2)
-      #      end
-      #
-      # if slow 1
-      # plus shift by one and again?
-      #      w_keys = result.keys.sort
-      #      result2 << Hash(Int32, Array(UInt8)).new
-      #      # result2 = Hash(Int32, Array(UInt8)).new
-      #      0.step(to: w_keys.size - 1, by: 2) do |i|
-      #        k1 = w_keys[i - 1]
-      #        k2 = w_keys[i]
-      #        if (result[k1].size + result[k2].size) < 9
-      #          # result2[k1] = result[k1] + result[k2]
-      #          result2[-1][k1] = result[k1] + result[k2]
-      #          # result2[-1][k1] = result[k1]
-      #        else
-      #          # result2[k1] = result[k1]
-      #          # result2[k2] = result[k2]
-      #          result2[-1][k1] = result[k1]
-      #          result2[-1][k2] = result[k2]
-      #        end
-      #      end
-      #
-      # add last one
-      # if w_keys.size % 2 != 0
-      #  result2[-1][w_keys[-1]] = result[w_keys[-1]]
-      #  # result2[w_keys[-1]] = result[w_keys[-1]]
-      # end
-
-      # added?
-      # w_keys = result.keys.sort
-      # w_keys_index = -1
-      # last_w = w_keys[w_keys_index]
-
-      # this selects one more?
-      # 1.upto(@slow).each do |i|
-      #  w_keys_index -= 1
-      #  tmp_key = w_keys[w_keys_index]
-      #  rev_result = result[tmp_key].sort.reverse
-      #  result[last_w].concat(rev_result)
-      #  result.delete tmp_key
-      # end
-
-      # if result[last_w].size > PERMUTATIONS_MAX
-      #  Cleaner.exit_failure("slow: #{@slow} -> #{result[last_w].size}, will lead to too many permutations")
-      # end
-
-      # w_keys = result.keys.sort
-      # w_keys_index = 0
-      # last_w = w_keys[w_keys_index]
-
-      # FIXME: think combine each pair but then result will be an array of
-      # 1 combines each pair
-      # 2 combines 3 pair
-      # all start from end
-      # all skip 9 or more perm
-
-      # results?
-      # this selects one more?
-      #      1.upto(@slow).each do |i|
-      #        w_keys_index += 1
-      #        tmp_key = w_keys[w_keys_index]
-      #        rev_result = result[tmp_key].sort.reverse
-      #        result[last_w].concat(rev_result)
-      #        result.delete tmp_key
-      #      end
-      #
-      #      if result[last_w].size > PERMUTATIONS_MAX
-      #        Cleaner.exit_failure("slow: #{@slow} -> #{result[last_w].size}, will lead to too many permutations")
-      #      end
-      #
       Helper.debug_inspect(result, context: "result")
 
-      # return result
-      # return result2[-1]
       return result
     end
 
@@ -1122,6 +728,137 @@ module Kilo
         result = get_products(result, perm[i])
       end
       return result
+    end
+
+    #    private def set_side_max_effort(filter, side, hand)
+    #      filter.pass?(side, hand: hand)
+    #      # filter.min = (filter.score * FILTER_FACTOR).to_i16
+    #    end
+    #
+    private def setup_filters(layout)
+      filter_characters(layout.split(""))
+
+      # FIXME: set characters/bigrams again don't create a new one
+      @layout_score = LayoutScore.new(
+        characters: @characters.clone,
+        bigrams: @bigrams
+      )
+
+      # FIXME: set characters/bigrams again don't create a new one
+      @left_sided_filter = OneSidedFilter.new(
+        @characters.clone,
+        @bigrams,
+      )
+
+      # FIXME: set characters/bigrams again don't create a new one
+      @right_sided_filter = OneSidedFilter.new(
+        @characters.clone,
+        @bigrams,
+      )
+
+      @l_effort_score = HalfEffortFilter.new(
+        @characters.clone,
+        ProjectConfig.instance.config[:left_to_32],
+        @left_32_index_by_weight
+      )
+      @r_effort_score = HalfEffortFilter.new(
+        @characters.clone,
+        ProjectConfig.instance.config[:right_to_32],
+        @right_32_index_by_weight
+      )
+    end
+
+    private def setup_filters_min(left, right, name)
+      set_side_filter_min(@left_sided_filter, left, Hand::LEFT)
+      set_side_filter_min(@right_sided_filter, right, Hand::RIGHT)
+
+      # FIXME: we don't need string or do we?
+      @layout_score.scan(left, right, name)
+      debug_layout_score(name)
+
+      @l_effort_score.scan(left)
+      @l_effort_score.min = @l_effort_score.score + @config[:effort_delta]
+      debug_half_effort(@l_effort_score, name, "left")
+
+      @r_effort_score.scan(right)
+      @r_effort_score.min = @r_effort_score.score + @config[:effort_delta]
+      debug_half_effort(@r_effort_score, name, "right")
+    end
+
+    private def setup_lr_filter
+      # just get the score and set it to min
+      @lr_filter.pass?(@layout_score.score)
+      # FIXME: maybe here different factor
+      @lr_filter.min_hand = (@lr_filter.score * @config[:filter_factor]).to_i16
+      @lr_filter.min_same_both = (@lr_filter.score_same_both * @config[:filter_factor]).to_i16
+      # combined should not be below EFFORT_DELTA
+      @lr_filter.min_effort = (@lr_filter.score_effort + (@config[:effort_delta])).to_i16
+    end
+
+    @[AlwaysInline]
+    private def db_name(name, hand)
+      return "db/#{name}-#{hand}.db"
+    end
+
+    @[AlwaysInline]
+    private def setup_eval_options(db_out)
+      return OptionsHash{"out" => db_out, "print" => false}
+    end
+
+    @[AlwaysInline]
+    private def stage1_name(name, index)
+      name + "_" + index.to_s
+    end
+
+    private def debug_half_effort(filter, name, side)
+      Helper.debug_inspect(
+        filter.score,
+        "#{name} (effort_filter #{side}) half effort"
+      )
+      Helper.debug_inspect(
+        filter.min,
+        "#{name} (effort_filter #{side}) min"
+      )
+    end
+
+    private def debug_half_hand(filter, hand)
+      side = hand
+      Helper.debug_inspect(
+        filter.scores[:hand],
+        "(half_hand_filter #{side}) hand"
+      )
+      Helper.debug_inspect(
+        filter.scores[:hand_im],
+        "(half_hand_filter #{side}}) hand_im"
+      )
+      Helper.debug_inspect(
+        filter.min_hand,
+        "(half_hand_filter #{side}) min_hand"
+      )
+      Helper.debug_inspect(
+        filter.min_same_both,
+        "(half_hand_filter #{side}) min_same_both"
+      )
+    end
+
+    private def debug_layout_score(name)
+      Helper.debug_inspect(
+        @layout_score.score.layout,
+        "#{name} layout"
+      )
+
+      Helper.debug_inspect(
+        @layout_score.score.same_finger_rp,
+        "#{name} same_finger_rp"
+      )
+      Helper.debug_inspect(
+        @layout_score.score.same_finger_im,
+        "#{name} same_finger_im"
+      )
+      Helper.debug_inspect(
+        @layout_score.score.positional_effort,
+        "#{name} positional_effort"
+      )
     end
   end
 end
