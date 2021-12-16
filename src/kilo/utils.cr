@@ -166,17 +166,15 @@ module Kilo
       end
     end
 
-    # use an object
+    # FIXME: test
+    # only for position ordered
     def self.half_effort(side, side_to_32, characters)
       kb_weights = ProjectConfig.instance.config[:kb_weights]
       effort = 0
       side.each_index do |i|
         index = side_to_32[i]
-        # puts index
         w = characters[side[i]]
-        # puts w
         key = KEYS_32[index]
-        # puts key
         effort += (kb_weights[key] * w)
       end
       if effort > Int16::MAX
@@ -186,6 +184,8 @@ module Kilo
       end
     end
 
+    # FIXME: test
+    # only for position ordered
     def self.get_best_min_effort(left, right, l_by_weight, r_by_weight, chars, delta = 100)
       l, r = get_best_effort(left, right, l_by_weight, r_by_weight)
 
