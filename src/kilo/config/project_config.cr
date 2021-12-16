@@ -38,8 +38,8 @@ module Kilo
       result = Helper.parse_yaml(config_default, context: filename)
 
       # if config_user != config_default
-      # result = result.as_h.merge(Helper.parse_yaml(config_user,
-      #  context: filename).as_h)
+      result = result.as_h.merge(Helper.parse_yaml(config_user,
+        context: filename).as_h)
       # end
 
       if result["characters"].to_s.size != 32

@@ -34,6 +34,7 @@ module Kilo
       sql_by_hand:                  "sql/by_hand.sql",
       sql_by_indices:               "sql/by_indices.sql",
       sql_by_jumps_grouped:         "sql/by_jumps_grouped.sql",
+      sql_by_jumps_same_both:       "sql/by_jumps_same_both.sql",
       sql_by_jumps:                 "sql/by_jumps.sql",
       sql_by_outward_grouped:       "sql/by_outward_grouped.sql",
       sql_by_outward:               "sql/by_outward.sql",
@@ -53,6 +54,7 @@ module Kilo
       sql_improve_hand_grouped:     "sql/improve_hand_grouped.sql",
       sql_improve_hand:             "sql/improve_hand.sql",
       sql_improve_jumps:            "sql/improve_jumps.sql",
+      sql_improve_jumps_same_both:  "sql/improve_jumps_same_finger_both.sql",
       sql_improve_outward:          "sql/improve_outward.sql",
       sql_improve_same_finger_both: "sql/improve_same_finger_both.sql",
       sql_improve_same_finger_rp:   "sql/improve_same_finger_rp.sql",
@@ -118,11 +120,14 @@ module Kilo
 
     # Returns rucksack path
     def self.embedded_file(name : Symbol) : String
-      path = user_file(name)
-      if path == ""
+      # path = user_file(name)
+      if FILES.has_key? name
+        return File.join(SRC_DIR, FILES[name])
+      else
         raise "Embedded: bad symbol name %s" % name
       end
-      return path
+      return ""
+      # return path
     end
 
     # Reads rucksack file into memory
