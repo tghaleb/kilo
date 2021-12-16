@@ -90,7 +90,7 @@ module Kilo
       end
 
       left, right = Utils.string_to_lr(layout_s, @characters)
-      @layout_score.scan(left, right, layout_s, name)
+      @layout_score.scan(left, right, name)
 
       return @layout_score.score
     end
