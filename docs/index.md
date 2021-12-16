@@ -76,10 +76,10 @@ Edit `config/config.yaml` and set path of corpus to use.
 ```console
 kilo freq -f data/bigrams.eng_web_2014_1M-sentences.txt.yml.zst
 kilo gen -f data/fast.eng_web_2014_1M-sentences.txt.yml
-kilo gen --best 50 > top.txt
-kilo improve --layouts top.txt --out top.db --limit 5 sql/improve-*
-kilo query top.db --sql sql/by_score.sql --limit 100 | less
-kilo query top.db --sql sql/by_score.sql --limit 100 --layouts | head -n 3 > candidates.txt
+kilo gen --best 10 > top.txt
+kilo improve --layouts top.txt --out top.db --limit 5 sql/improve_*
+kilo query top.db --sql sql/by_hand.sql --limit 100 | less
+kilo query top.db --sql sql/by_hand.sql --limit 100 --layouts | head -n 3 > candidates.txt
 kilo export --create-templates candidates.txt
 kilo export --xkb --image --type maps/*.yaml
 ```
