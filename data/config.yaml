@@ -2,7 +2,7 @@
 # path to the corpus to use
 corpus: "corpi/eng_web_2014_1M-sentences.txt.clean.zst"
 
-balance_delta: 0.06 
+balance_delta: 0.05 
 alternation_min: 0.68
 alternation_max: 0.99
 
@@ -18,10 +18,15 @@ characters: abcdefghijklmnopqrstuvwxyz-',;./
 
 improve_config:
   stage2_count:  10
-  effort_delta: 400
+  effort_delta: 250
   filter_factor: 1.01
-  max_half_same_rp: 80
-  max_half_same_both: 400
-  max_half_hand: 200
-  
+  # used by stage 1 to filter half layouts
+  max_half_same_finger_rp: 70
+  max_half_same_finger_im: 300
+  max_half_hand: 150
+  # used by SQL for to calculate half filter for WHERE
+  sql_half_same_finger_rp: 50
+  sql_half_same_finger_im: 300
+  sql_half_outward: 80
+  sql_half_jumps: 20
 
