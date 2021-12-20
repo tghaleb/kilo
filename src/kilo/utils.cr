@@ -273,7 +273,7 @@ module Kilo
       return [left, right]
     end
 
-    # Reads user sql file or exits.
+    # Reads user SQL file or exits.
     def self.read_user_sql(file : String, default : String, limit : String) : String
       sql = default.strip
       if file.to_s != ""
@@ -281,9 +281,37 @@ module Kilo
         unless File.file? _sql_file
           Cleaner.exit_failure("not a file '#{_sql_file}'")
         end
-        sql = File.read(_sql_file).strip
+        sql = File.read(_sql_file).gsub(/[\s\n]+/, " ").strip
       end
       return sql.sub(/(LIMIT.*|;)?$/i, " LIMIT #{limit};")
+    end
+
+    # Read user improve SQL and adds filters
+    def self.read_user_improve_sql(
+      file : String,
+      default : String,
+      limit : String,
+      scores : SimpleScoresType
+    ) : String
+      where = [] of String
+
+      scores.each_key do |k|
+        where << "(%s < %s)" % [k.to_s, scores[k].to_s]
+      end
+
+      stmt = where.join(" AND ")
+
+      sql = read_user_sql(file, default, limit)
+
+      if sql =~ / WHERE /i
+        sql = sql.gsub(/ WHERE /i, " WHERE " + stmt + " AND ")
+      else
+        sql = sql.gsub(" #{TBL_LAYOUTS} ", " #{TBL_LAYOUTS} WHERE " + stmt + " ")
+      end
+
+      Helper.debug_inspect(sql, "sql")
+
+      return sql
     end
 
     def self.query_layouts_db(db, sql, &block)
