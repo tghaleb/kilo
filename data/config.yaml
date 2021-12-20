@@ -23,6 +23,7 @@ improve_config:
   # used by stage 1 to filter half layouts
   max_half_same_finger_rp: 70
   max_half_same_finger_im: 300
+  max_half_outward: 120
   max_half_hand: 150
   # used by SQL for to calculate half filter for WHERE
   sql_half_same_finger_rp: 50

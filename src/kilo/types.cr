@@ -48,5 +48,6 @@ module Kilo
     # used to filter stage 1
     max_half_same_finger_rp: Int16,
     max_half_same_finger_im: Int16,
-    max_half_hand: Int16)
+    max_half_hand: Int16,
+    max_half_outward: Int16)
 end
