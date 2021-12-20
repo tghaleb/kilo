@@ -24,17 +24,21 @@ module Kilo
       characters,
       bigrams,
       min_hand = DEFAULT_MIN,
+      min_outward = DEFAULT_MIN,
       min_same_both = DEFAULT_MIN
     )
       @characters = characters
       @bi_lookup = Utils.build_char_bigram_i(characters, bigrams)
       @min_hand = min_hand
       @min_same_both = min_same_both
+      @min_outward = min_outward
     end
 
     def pass? : Bool
-      return (@score <= @min_hand) && (@score_same_both <=
-        @min_same_both)
+      #      return (@score <= @min_hand) && (@score_same_both <=
+      #        @min_same_both)
+      return ((@score_same_both + @score_jumps) <= @min_same_both) &&
+        (@score_adjacent_outward <= @min_outward)
     end
 
     private def reinit_scores
