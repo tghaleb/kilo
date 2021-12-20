@@ -100,8 +100,9 @@ module Kilo
                 @score_jumps).to_i16
 
       @scores[:jumps] = @score_jumps.to_i16
-
       @scores[:outward] = @score_adjacent_outward.to_i16
+      @scores[:same_finger_rp] = @score_same_finger_rp
+      @scores[:same_finger_im] = @score_same_finger_im
 
       @scores[:hand] = (@score_same_finger_rp + @score_adjacent_outward +
                         @score_jumps).to_i16
@@ -115,8 +116,6 @@ module Kilo
                              @score_same_finger_im).to_i16
 
       @scores[:same_both_j] = @scores[:same_both].as(Int16) + @score_jumps
-
-      @scores[:same_rp] = @score_same_finger_rp
     end
 
     private def case_finger(
