@@ -105,12 +105,7 @@ module Kilo
     # Returns filesystem path
     def self.user_file(name : Symbol) : String
       if FILES.has_key? name
-        path = File.join(CONFIG_DIR, FILES[name])
-        if File.file? path
-          path
-        else
-          File.join(SRC_DIR, FILES[name])
-        end
+        File.join(CONFIG_DIR, FILES[name])
       elsif EXTRA_FILES.has_key? name
         EXTRA_FILES[name]
       else
@@ -169,9 +164,8 @@ module Kilo
       end
     end
 
-    # FIXME: maybe remove this?
     # Write user File (only if not present)
-    def self.write(name : Symbol) : Nil
+    def self.write_user_file(name : Symbol) : Nil
       if File.file? user_file(name)
         return
       else
