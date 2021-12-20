@@ -14,11 +14,10 @@ module Kilo
   end
 
   class Improve < Command
-    # allow up to 400 delta
-
     PERMUTATIONS_MAX   = 7
     EMPTY_U8_ARRAY     = SideType.new
     EMPTY_STRING_ARRAY = Array(String).new
+    STAGES1            = [:stage1_0, :stage1_1, :stage1_2]
 
     @db = DB_Helper.new
 
@@ -31,20 +30,7 @@ module Kilo
     @right_32_index_by_weight : Array(Int32)
 
     @sided_filters = Array(OneSidedFilter).new(size: 2, value: OneSidedFilter.new)
-    #  @left_sided_filter = OneSidedFilter.new
-    #  @right_sided_filter = OneSidedFilter.new
-    #  @left_sided_short_filter = OneSidedFilter.new
-    #  @right_sided_short_filter = OneSidedFilter.new
-
     @sided_effort_filters = Array(HalfEffortFilter).new(size: 2, value: HalfEffortFilter.new)
-    #  @l_effort_score = HalfEffortFilter.new
-    #  @r_effort_score = HalfEffortFilter.new
-
-    #    @stage1_layouts : Hash(Hand, Array(SimpleScoresType)) = {
-    #      Hand::LEFT  => Array(SimpleScoresType).new(size: 3, value: NULL_SIMPLE_SCORES.clone),
-    #      Hand::RIGHT => Array(SimpleScoresType).new(size: 3, value: NULL_SIMPLE_SCORES.clone),
-    #    }
-    #
     @layout_stages = Hash(Symbol, LayoutStage){
       :original    => LayoutStage.new,
       :best_effort => LayoutStage.new,
@@ -59,27 +45,6 @@ module Kilo
       Hand::RIGHT => Set(SideType).new,
     }
 
-    STAGES1 = [:stage1_0, :stage1_1, :stage1_2]
-
-    #    @layout_originals = Hash(Symbol, LayoutStage){
-    #      :original    => LayoutStage.new,
-    #      :best_effort => LayoutStage.new,
-    #    }
-    #    #    @layout_originals : Hash(Symbol, Array(SimpleScoresType)) = {
-    #      :original    => LayoutStageOriginalSArray(SimpleScoresType).new(size: 2, value: NULL_SIMPLE_SCORES.clone),
-    #      :best_effort => Array(SimpleScoresType).new(size: 2, value: NULL_SIMPLE_SCORES.clone),
-    #    }
-    #
-
-    # FIXME: maybe another container or keys should be constants
-    # 0 -> always original
-    # 1 -> always best effort
-    #    @original_layouts : Hash(Hand, Array(SimpleScoresType)) = {
-    #      Hand::LEFT  => Array(SimpleScoresType).new(size: 2, value: NULL_SIMPLE_SCORES.clone),
-    #      Hand::RIGHT => Array(SimpleScoresType).new(size: 2, value: NULL_SIMPLE_SCORES.clone),
-    #    }
-    #
-    @simple_results = Array(SimpleScoresType).new
     @config : ImproveConfigType
 
     def initialize
@@ -94,8 +59,6 @@ module Kilo
       @right_32_index_by_weight = Utils.index_by_weight(side_to_32: right_to_32)
 
       @eval = Eval.new
-
-      # @lr_filter = SameHandEvalFilter.new(@config[:max_half_hand])
     end
 
     def run(
@@ -159,10 +122,8 @@ module Kilo
 
       Helper.debug_inspect(layouts_left.size, "ll_size")
       Helper.debug_inspect(layouts_right.size, "rr_size")
-      # puts layouts_left.inspect
 
       layouts_lookup_left = build_layouts_lookup(layouts_left)
-      # puts layouts_lookup_left.inspect
       layouts_lookup_right = build_layouts_lookup(layouts_right)
 
       Helper.debug_inspect(layouts_lookup_right.keys, "layout right keys")
@@ -224,14 +185,7 @@ module Kilo
       half_jumps = @config[:sql_half_jumps]
       half_outward = @config[:sql_half_outward]
 
-      # scores = @sided_filters[hand.value].scores
-      # FIXME: other hand?
       other_scores = @layout_stages[:original].scores[other_hand.value]
-      #      if hand == Hand::LEFT
-      #        scores = @right_sided_filter.scores
-      #      else
-      #        scores = @left_sided_filter.scores
-      #      end
 
       Helper.debug_inspect(other_scores[:same_finger_rp],
         other_hand.to_s + " same_finger_rp")
@@ -251,7 +205,6 @@ module Kilo
       layouts_left = Array(Score).new
       layouts_right = Array(Score).new
 
-      # # need to calc jumps, same_rp, same_im,? same_both, outward, effort,
       name = layout[:name]
       layout_s = layout[:k32]
 
@@ -266,20 +219,14 @@ module Kilo
           file.to_s,
           default: DEFAULT_SELECT,
           limit: @opts["limit"].to_s,
-          # scores: get_side_limits(left, right, Hand::LEFT)
           scores: get_side_limits(other_hand: Hand::RIGHT)
         )
         r_sql = Utils.read_user_improve_sql(
           file.to_s,
           default: DEFAULT_SELECT,
           limit: @opts["limit"].to_s,
-          # scores: get_side_limits(left, right, Hand::RIGHT)
           scores: get_side_limits(other_hand: Hand::LEFT)
         )
-
-        # select all for now
-        # l_sql = DEFAULT_SELECT
-        # r_sql = DEFAULT_SELECT
 
         layouts_left.concat(Utils.query_layouts_db(@db_left, l_sql))
         layouts_right.concat(Utils.query_layouts_db(@db_right, r_sql))
@@ -313,14 +260,12 @@ module Kilo
         STDERR.puts "will save to " + db_out
 
         @eval.opts = options
-        # @eval.eval_layouts(_layouts, db, score_script, @lr_filter)
         @eval.eval_layouts(_layouts, db)
 
         db.close
       end
     end
 
-    # private def set_side_filter_min(filter, side, hand)
     private def set_side_filter_min(side, hand)
       filter = @sided_filters[hand.value]
       filter.scan(side, hand: hand)
@@ -332,6 +277,13 @@ module Kilo
       end
 
       filter.min_hand = max_hand
+
+      max_outward = (filter.score * @config[:filter_factor]).to_i16
+      if max_outward > @config[:max_half_outward]
+        max_outward = @config[:max_half_outward]
+      end
+
+      filter.min_outward = max_outward
 
       config_max_both = @config[:max_half_same_finger_rp] + @config[:max_half_same_finger_im]
       max_both = (filter.score_same_both * @config[:filter_factor]).to_i16
@@ -362,29 +314,10 @@ module Kilo
     end
 
     private def improve_stage2(name, left, right)
-      # private def improve_stage2
-      # add original left/right
-      #      scanner([left], name: name, other_side: right, hand: Hand::RIGHT, ordered: true)
-      #      scanner([right], name: name, other_side: left, hand: Hand::LEFT, ordered: true)
-
-      # NOTE we want to use the original left/right in left/right db
-
       puts_stage(2)
 
-      # @stage1_layouts[Hand::RIGHT].each_index do |i|
       STAGES1.each do |sym|
-        # FIXME: someone else adds these?
-        #        _right = @stage1_layouts[Hand::RIGHT][i][:side].as(Array(UInt8))
-        #        _left = @stage1_layouts[Hand::LEFT][i][:side].as(Array(UInt8))
-        _right = @layout_stages[sym].sides[Hand::RIGHT.value]
-        _left = @layout_stages[sym].sides[Hand::LEFT.value]
-        puts _right
-        puts _left
-
-        # add stage1 originals
-        # or if here test for Set?
-        # FIXME: do these in products no here
-        # scanner([_right], name: name, other_side: _left, hand: Hand::RIGHT, ordered: true)
+        _left, _right = get_lr_stages(sym)
 
         setup_filters_min(_left, _right, name)
 
@@ -432,11 +365,9 @@ module Kilo
       Utils.reinit_db(@db_left)
       Utils.reinit_db(@db_right)
 
-      # NOTE: we pass originals left/right now
-      # FUNCTION
-      left = @layout_stages[:original].sides[Hand::LEFT.value]
-      right = @layout_stages[:original].sides[Hand::RIGHT.value]
+      left, right = get_lr_stages(:original)
 
+      # add original left/right
       scanner([left], name: name, other_side: right, hand: Hand::LEFT, ordered: true)
       scanner([right], name: name, other_side: left, hand: Hand::RIGHT, ordered: true)
 
@@ -444,12 +375,16 @@ module Kilo
       improve_stage2(name, left, right)
     end
 
+    private def get_lr_stages(key)
+      return @layout_stages[key].sides[Hand::LEFT.value],
+        @layout_stages[key].sides[Hand::RIGHT.value]
+    end
+
     private def save_fast(db_out)
       @db.close
       @db = Utils.create_db(db_out)
       STAGES1.each do |k|
-        left = @layout_stages[k].sides[Hand::LEFT.value]
-        right = @layout_stages[k].sides[Hand::RIGHT.value]
+        left, right = get_lr_stages(k)
         name = @layout_stages[k].name
 
         Helper.debug_inspect(left, "left " + name)
@@ -463,63 +398,28 @@ module Kilo
         @db.db.exec(UPDATE_SCORE_SQL, @layout_score.score.score, @layout_score.score.layout)
       end
 
-      # FIXME: fix this later
-      #      @stage1_layouts[Hand::LEFT].each_index do |i|
-      #        ldata = @stage1_layouts[Hand::LEFT][i]
-      #        left = ldata[:side].as(Array(UInt8))
-      #        right = @stage1_layouts[Hand::RIGHT][i][:side].as(Array(UInt8))
-      #        name = ldata[:name].as(String)
-      #
-      #        Helper.debug_inspect(left, "left " + name)
-      #        Helper.debug_inspect(right, "right " + name)
-      #
-      #        layout = Utils.lr_to_string(left, right, @characters.sorted)
-      #
-      #        @layout_score.scan(left, right, name)
-      #
-      #        @db.db.exec(SQL_TBL_LAYOUTS_INSERT, *@layout_score.score.values)
-      #        @db.db.exec(UPDATE_SCORE_SQL, @layout_score.score.score, @layout_score.score.layout)
-      #      end
       @db.close
     end
 
     private def get_hand_filters(hand)
-      #      if hand == Hand::LEFT
-      #        hand_filter = @left_sided_filter
-      #        effort_filter = @l_effort_score
-      #      else
-      #        hand_filter = @right_sided_filter
-      #        effort_filter = @r_effort_score
-      #      end
-      #
-      #      return hand_filter, effort_filter
       return @sided_filters[hand.value], @sided_effort_filters[hand.value]
     end
 
     private def multi_filter(
       hand,
-      # index,
       key,
-      #      scores,
       keys,
       side
     )
       scores = @sided_filters[hand.value].scores
       k = keys.shift
       name = @layout_stages[key].name
-      # if @stage1_layouts[hand][index][key].as(Int16) > scores[key].as(Int16)
       if (@layout_stages[key].scores[hand.value][k]) > scores[k]
-        # set_side_data(index, hand, scores)
         setup_layout_stage(key, name, side, hand)
-        # set_side_data(key, hand, scores, side)
-        # elsif @stage1_layouts[hand][index][key].as(Int16) == scores[key].as(Int16)
       elsif (@layout_stages[key].scores[hand.value][k]) == scores[k]
-        # elsif @stage1_layouts[hand][index][key].as(Int16) == scores[key].as(Int16)
         multi_filter(
           hand: hand,
-          # index: index,
           key: key,
-          #  scores: scores,
           keys: keys,
           side: side
         ) if keys.size != 0
@@ -549,25 +449,11 @@ module Kilo
       side_p_ordered = order_side_by_position(side, hand)
       hand_filter.scan(side_p_ordered, hand: hand)
 
-      # FIXME: fix these settings?
-      # scores = hand_filter.scores
-      #      scores[:effort] = effort_filter.score
-      #      scores[:name] = name
-      #      scores[:side] = side_p_ordered
-      #
+      # set starting point
       setup_layout_stage(:stage1_0, name, side_p_ordered, hand)
       setup_layout_stage(:stage1_1, name, side_p_ordered, hand)
       setup_layout_stage(:stage1_2, name, side_p_ordered, hand)
 
-      # set starting point
-      # set_side_data(0, hand, scores)
-      # set_side_data(1, hand, scores)
-      # set_side_data(2, hand, scores)
-
-      #      set_side_data(:stage1_0, hand, scores)
-      #      set_side_data(:stage1_1, hand, scores)
-      #      set_side_data(:stage1_2, hand, scores)
-      #
       char_by_weight(hand, side).each do |lookup|
         perm = side_permutations(lookup)
         prod = permutations_product(perm)
@@ -576,16 +462,10 @@ module Kilo
           side_p_ordered = order_side_by_position(x, hand)
           hand_filter.scan(side_p_ordered, hand: hand)
 
-          # test for effort
-          # sort order best_side, best_rp, best_hand, best effort
           next unless effort_filter.pass?(side_p_ordered)
 
           scores = hand_filter.scores
           scores[:effort] = effort_filter.score
-
-          # do we need to pass scores?
-          # scores[:side] = side_p_ordered
-          # scores[:name] = name
 
           next unless good_half_scores?(scores)
 
@@ -593,7 +473,6 @@ module Kilo
             hand: hand,
             side: side_p_ordered,
             key: :stage1_0,
-            #  scores: scores,
             keys: [:same_both, :same_finger_rp, :hand, :effort],
           )
 
@@ -601,7 +480,6 @@ module Kilo
             hand: hand,
             side: side_p_ordered,
             key: :stage1_1,
-            #  scores: scores,
             keys: [:same_both_j, :same_finger_rp, :jumps, :outward, :effort] # keys: [:hand, :same_both, :same_rp, :effort]
           )
 
@@ -609,29 +487,16 @@ module Kilo
             hand: hand,
             side: side_p_ordered,
             key: :stage1_2,
-            #  scores: scores,
             keys: [:hand_im, :hand, :effort]
           )
         end
       end
-      # Helper.debug_inspect(@stage1_layouts, "pre best_side_scores " + hand.to_s)
       Helper.debug_inspect(@layout_stages, "layout_stages " + hand.to_s)
     end
 
-    # private def set_side_data(key, index, hand, scores)
-    #    private def set_side_data(key, hand, scores)
-    #      # @stage1_layouts[hand][index] = scores.clone
-    #      @layout_stages[key].scores[hand.value] = scores.clone
-    #      @layout_stages[key].side = side.clone
-    #    end
-    #
     private def best_effort_adjust_min(hand)
-      # @l_effort_score.min =
-
       @sided_effort_filters[hand.value].min =
         @layout_stages[:best_effort].scores[hand.value][:effort] + @config[:effort_delta]
-      # @layout_originals[:best_effort][hand.value][:effort].as(Int16) + @config[:effort_delta]
-      # @original_layouts[hand][1][:effort].as(Int16) + @config[:effort_delta]
     end
 
     private def do_products(
@@ -651,9 +516,6 @@ module Kilo
       tmp = Array(SideType).new
       tmp << side
 
-      # return if @layout_sides[hand].includes? side
-      # @layout_sides[hand].add(side)
-
       best_effort_adjust_min(hand)
 
       # Important this is what we work with
@@ -662,7 +524,6 @@ module Kilo
       s_count = @config[:stage2_count]
       last_n = side_w_ordered[s_count..-1]
 
-      # FIXME: do this outside? or here
       perm_n = last_n.permutations
 
       side_w_ordered[0..s_count - 1].each_permutation(s_count) do |x|
@@ -682,7 +543,6 @@ module Kilo
           ordered = order_side_by_position(p, hand: hand)
           hand_filter.scan(ordered, hand)
           tmp << ordered if hand_filter.pass?
-          # tmp << ordered
         end
         if tmp.size > 20_000_000
           STDERR.puts "       captured #{hand.to_s}: " + tmp.size.to_s
@@ -734,13 +594,6 @@ module Kilo
         db = @db_left
         array.each do |x|
           _tmp = x.clone
-
-          #          unless ordered
-          #            x = order_side_by_position(x, hand)
-          #            next unless @l_effort_score.pass?(x)
-          #            next unless @left_sided_filter.pass?(x, hand: hand)
-          #          end
-
           next if @layout_sides[hand].includes? x
           scan(x, other_side, name, db)
           @layout_sides[hand].add(x)
@@ -749,12 +602,6 @@ module Kilo
         db = @db_right
         array.each do |x|
           _tmp = x.clone
-          #          unless ordered
-          #            x = order_side_by_position(x, hand)
-          #            next unless @r_effort_score.pass?(x)
-          #            next unless @right_sided_filter.pass?(x, hand: hand)
-          #          end
-
           next if @layout_sides[hand].includes? x
           scan(other_side, x, name, db)
           @layout_sides[hand].add(x)
@@ -767,13 +614,8 @@ module Kilo
       layout = Utils.lr_to_string(left, right, @characters.sorted)
 
       @layout_score.scan(left, right, name)
-      # puts "scan " + layout.inspect
 
-      # fixm this filter
-      # if @lr_filter.pass? @layout_score.score
       db.db.exec(SQL_TBL_LAYOUTS_INSERT, *@layout_score.score.values)
-      # db.db.exec(UPDATE_SCORE_SQL, @layout_score.score.score, @layout_score.score.layout)
-      # end
     end
 
     # Returns the product of two arrays (of permutations)
@@ -845,7 +687,6 @@ module Kilo
       return result
     end
 
-    # Fixme: is this a util function
     private def char_by_weight(hand : Hand, side : SideType) : Array(Hash(Int32, SideType))
       result = Array(Hash(Int32, SideType)).new
       result << Hash(Int32, SideType).new
@@ -923,18 +764,6 @@ module Kilo
         @bigrams,
       )
 
-      #      # FIXME: set characters/bigrams again don't create a new one
-      #      @left_sided_filter = OneSidedFilter.new(
-      #        @characters.clone,
-      #        @bigrams,
-      #      )
-      #
-      #      # FIXME: set characters/bigrams again don't create a new one
-      #      @right_sided_filter = OneSidedFilter.new(
-      #        @characters.clone,
-      #        @bigrams,
-      #      )
-      #
       @sided_effort_filters[Hand::LEFT.value] = HalfEffortFilter.new(
         @characters.clone,
         ProjectConfig.instance.config[:left_to_32],
@@ -945,26 +774,11 @@ module Kilo
         ProjectConfig.instance.config[:right_to_32],
         @right_32_index_by_weight
       )
-
-      #      @l_effort_score = HalfEffortFilter.new(
-      #        @characters.clone,
-      #        ProjectConfig.instance.config[:left_to_32],
-      #        @left_32_index_by_weight
-      #      )
-      #      @r_effort_score = HalfEffortFilter.new(
-      #        @characters.clone,
-      #        ProjectConfig.instance.config[:right_to_32],
-      #        @right_32_index_by_weight
-      #      )
     end
 
     private def setup_layout_stage(key, name, side, hand)
       scores = @sided_filters[hand.value].scores.clone
       scores[:effort] = @sided_effort_filters[hand.value].score
-      # scores[:name] = name
-      # scores[:side] = side.clone
-      # @original_layouts[Hand::LEFT][0] = scores
-      # @layout_originals[:original][Hand::LEFT.value] = scores
       @layout_stages[key].scores[hand.value] = scores
       @layout_stages[key].sides[hand.value] = side.clone
       @layout_stages[key].name = name
@@ -977,20 +791,6 @@ module Kilo
       setup_layout_stage(:original, name, left, Hand::LEFT)
       setup_layout_stage(:original, name, right, Hand::RIGHT)
 
-      #      scores = @left_sided_filter.scores.clone
-      #      scores[:effort] = @l_effort_score.score
-      #      scores[:name] = name
-      #      scores[:side] = left
-      #      # @original_layouts[Hand::LEFT][0] = scores
-      #      # @layout_originals[:original][Hand::LEFT.value] = scores
-      #      @layout_originals[:original].scores[Hand::LEFT.value] = scores
-      #
-      #      scores = @right_sided_filter.scores.clone
-      #      scores[:effort] = @r_effort_score.score
-      #      scores[:name] = name
-      #      scores[:side] = right
-      #      @layout_originals[:original].scores[Hand::RIGHT.value] = scores
-
       _left, _right = Utils.get_best_effort(left,
         right,
         @left_32_index_by_weight,
@@ -999,29 +799,9 @@ module Kilo
       setup_filters_min(_left, _right, name)
       setup_layout_stage(:best_effort, name, _left, Hand::LEFT)
       setup_layout_stage(:best_effort, name, _right, Hand::RIGHT)
-
-      #      setup_filters_min(_left, _right, name)
-      #
-      #      scores = @left_sided_filter.scores.clone
-      #      scores[:effort] = @l_effort_score.score
-      #      scores[:name] = name
-      #      scores[:side] = _left
-      #      @layout_originals[:best_effort].scores[Hand::LEFT.value] = scores
-      #      # @original_layouts[Hand::LEFT][1] = scores
-      #
-      #      scores = @right_sided_filter.scores.clone
-      #      scores[:effort] = @r_effort_score.score
-      #      scores[:name] = name
-      #      scores[:side] = _right
-      #      @layout_originals[:best_effort].scores[Hand::RIGHT.value] = scores
-      # @original_layouts[Hand::RIGHT][1] = scores
     end
 
     private def setup_filters_min(left, right, name)
-      #      set_side_filter_min(@left_sided_filter, left, Hand::LEFT)
-      #      set_side_filter_min(@right_sided_filter, right, Hand::RIGHT)
-      #
-
       set_side_filter_min(left, Hand::LEFT)
       set_side_filter_min(right, Hand::RIGHT)
 
@@ -1038,14 +818,6 @@ module Kilo
       filter.scan(right)
       filter.min = filter.score + @config[:effort_delta]
       debug_half_effort(filter, name, "right")
-
-      #      @l_effort_score.scan(left)
-      #      @l_effort_score.min = @l_effort_score.score + @config[:effort_delta]
-      #      debug_half_effort(@l_effort_score, name, "left")
-      #
-      #      @r_effort_score.scan(right)
-      #      @r_effort_score.min = @r_effort_score.score + @config[:effort_delta]
-      #      debug_half_effort(@r_effort_score, name, "right")
     end
 
     @[AlwaysInline]
