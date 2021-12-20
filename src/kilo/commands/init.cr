@@ -29,7 +29,7 @@ module Kilo
 
         # Write files
         Embedded::FILES.each_key do |k|
-          Embedded.write(k)
+          Embedded.write_user_file(k)
         end
 
         # Write extra files
