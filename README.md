@@ -8,7 +8,7 @@ A tool to generate, analyze, and compare keyboard layouts.
 
 ## Documentation
 
-<https://tghaleb.eu.org/kilo>
+<https://www.tghaleb.eu.org/kilo>
 
 ## Contributors
 
