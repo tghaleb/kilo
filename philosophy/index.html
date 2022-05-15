@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>Philosophy - Kilo</title>
+    <link href="../css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="../css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="../css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/highlight.css">
+    <link href="../assets/_mkdocstrings.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="../js/jquery-3.2.1.min.js"></script>
+    <script src="../js/bootstrap-3.3.7.min.js"></script>
+    <script src="../js/highlight.pack.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '..';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Philosophy", url: "#_top", children: [
+              {title: "Positional effort", url: "#positional-effort" },
+              {title: "Alternation", url: "#alternation" },
+              {title: "Same Hand", url: "#same-hand" },
+              {title: "The kilo approach", url: "#the-kilo-approach" },
+          ]},
+        ];
+
+    </script>
+    <script src="../js/base.js"></script> 
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+
+
+<div class="container-fluid wm-page-content">
+  <a name="_top"></a>
+    
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav">
+      <a href=".." class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href=".." class="btn btn-xs btn-link">
+        Home
+      </a>
+    </div>
+    
+  </div>
+
+    
+
+    <h1 id="philosophy">Philosophy</h1>
+<p>There are a lot of properties to consider for layouts, and
+design of a layout is subjective in many ways. There is no <em>best</em>
+layout. Still, there are layouts that are better than others. There are
+also bad layouts. The QWERTY layout fails on most
+comparison criteria. To start with, we can define the properties of a
+layout that are least subjective.</p>
+<pre><code class="language-json">name: QWERTY
+layout: qwertyuiop[asdfghjkl;'zxcvbnm,./
+score: 1.35
+positional_effort: 64.74
+alternation: 47.89
+text_direction: 50.49
+same_hand:
+  jumps: 9.66
+  same_finger:
+    rp: 2.31
+    im: 8.77
+  adjacent-mrp:
+    inward: 3.62
+    outward: 4.00
+balance: 64.23
+  rows: [50.67, 31.41, 17.77]
+  fingers: [8.13, 8.18, 19.09, 28.83, 0.00, 0.00, 11.29, 9.02, 12.96, 2.35]
+    indices: 40.12
+    middles: 28.11
+    rings: 21.14
+    pinkies: 10.48
+</code></pre>
+<h2 id="positional-effort">Positional effort</h2>
+<p>The letters that are used most frequently, need to be
+placed on the easiest keys to type. We use weights for effort
+of each key. In <code>kilo</code> you can customize these weights but the defaults
+for kilo look something like this:</p>
+<p><img alt="weights" src="../images/weights.svg" /></p>
+<p>As for placements of the keys, here is a heat map for QWERTY, </p>
+<p><img alt="qwerty heat" src="../images/QWERTY.heat.svg" /></p>
+<p>and another for Dvorak,</p>
+<p><img alt="qwerty heat" src="../images/Dvorak.heat.svg" /></p>
+<p>You can clearly see that Dvoark has better placement of the keys.  <code>kilo</code> 
+calculates scores for positional effort, better layouts should have less effort scores.</p>
+<p><img alt="effort" src="../images/layouts.db.positional_effort.svg" /></p>
+<p>NOTE: we can sacrifice a little positional efficiency for the sake of
+getting an overall better layout, but not too much.</p>
+<h2 id="alternation">Alternation</h2>
+<p>Some might argue that high alternation is not necessarily a good
+thing and that typing with one hand is as fast, if not faster. Still
+distributing the work on both hands must be better. I've experimented with 
+lower alternation and the important scores that
+matter seem to be proportional to alternation scores. The top 100
+alternation layouts seem to outperform others in all respects.</p>
+<p><img alt="effort" src="../images/layouts.db.alternation.svg" /></p>
+<h2 id="same-hand">Same Hand</h2>
+<p>What is left after alternation, which when you go for high alternation
+is about 70%, is same hand effort,  Here a few factors need to be considered.</p>
+<h3 id="row-jumps">Row Jumps</h3>
+<p>Jumps from top to bottom row or from bottom to top
+should be minimized since they break the flow of typing and force you to
+move your hands from their home position. So you want a small percentage
+of the your total effort to be row jumps.</p>
+<p><img alt="jumps" src="../images/layouts.db.jumps.svg" /></p>
+<h3 id="adjacent-finger-movement">Adjacent finger movement</h3>
+<p>Some adjacent finger movements are more difficult than others. The
+difficulty increases when it involves the weaker outer fingers of the hand. The
+index finger in general is strong enough. Adjacent index with the middle finger
+is not a worry, but for the rest of the fingers it matters. There are two types of adjacent
+movements. Inward and outward, outward being the one that is more difficult
+for most people so we would like to minimize that.</p>
+<p><img alt="outward" src="../images/layouts.db.outward.svg" /></p>
+<h3 id="same-finger">Same finger</h3>
+<p>Same finger for multiple keys also needs to be minimized but again we
+can break it into two parts, the Index and middle fingers are probably not a
+problem. But we should decide how much weight to give to them. Some layouts might 
+choose to mostly minimize for pinky and ring fingers. It is not clear
+how much weight to give im fingers, though, so you can experiment with
+that.</p>
+<p><img alt="same_finger_rp" src="../images/layouts.db.same_finger_rp.svg" /></p>
+<p>And here if we want to consider also same index/middle fingers.</p>
+<p><img alt="same_finger_both" src="../images/layouts.db.same_finger_both.svg" /></p>
+<p>One thing that you will notice is that as you try to minimize one 
+factor the others might go up. So you need to make a decision
+which factors matter most. The defaults for <code>kilo</code> favor minimizing 
+outward and jumps and same rp finger at the same time minimizing
+the sum of these 3 factors as a whole but you can change these defaults.</p>
+<p><img alt="same hand" src="../images/layouts.db.same_hand_effort.svg" /></p>
+<p>And here we also add same index/middle fingers to the score, if
+we decide to consider <code>same_im</code>. </p>
+<p><img alt="same hand plus" src="../images/layouts.db.same_hand_effort_im.svg" /></p>
+<h3 id="other-factors">Other factors</h3>
+<p>There are other factors to consider:</p>
+<ul>
+<li>Less works for pinkies and ring fingers.</li>
+<li>Try to layout the letters in the same direction of the language, so T
+  H is better than H T, etc.</li>
+<li>Programmer layouts: I think this should be done manually by placing
+  the characters you need outside the 32 main characters. Programmers
+  still have to write documentation and other texts so they can build on
+  a layout with the main 32 characters and customize the rest. </li>
+</ul>
+<h2 id="the-kilo-approach">The <code>kilo</code> approach</h2>
+<p>By default kilo calculates statistics for each layouts and assigns 
+a score. You can change the weights that control the internal scorer or
+write your own. Any
+scoring system will depend on your preferences and will be biased is some way.
+Sometimes, you might decide to select a layout that is not the highest scoring,
+but one that has good characteristics that you would like to see in a layout.</p>
+
+  <br>
+    
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav">
+      <a href=".." class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href=".." class="btn btn-xs btn-link">
+        Home
+      </a>
+    </div>
+    
+  </div>
+
+    <br>
+</div>
+
+<footer class="container-fluid wm-page-content">
+  <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/gristlabs/mkdocs-windmill">Windmill</a> theme by Grist Labs.</p>
+</footer>
+
+</body>
+</html>
