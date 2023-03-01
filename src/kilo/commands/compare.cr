@@ -4,7 +4,9 @@ module Kilo
   class Compare < Command
     include Constants
 
-    EXTRA_CHARTS = Set.new([:indices, :middles, :rings, :pinkies])
+    EXTRA_CHARTS = Set.new([:indices, :middles, :rings, :pinkies,
+                            :text_direction,
+                            :same_finger_both])
 
     @db = DB_Helper.new
     @sql = SELECT_ALL
@@ -82,6 +84,7 @@ module Kilo
       jumps = Array(Float64).new
       same_finger_rp = Array(Float64).new
       same_finger_both = Array(Float64).new
+      same_finger_both_jumps = Array(Float64).new
       positional_effort = Array(Float64).new
       score = Array(Float64).new
       alternation = Array(Float64).new
@@ -103,6 +106,7 @@ module Kilo
         jumps << layout.jumps/100
         same_finger_rp << layout.same_finger_rp/100
         same_finger_both << (layout.same_finger_rp/100) + (layout.same_finger_im/100)
+        same_finger_both_jumps << (layout.same_finger_rp/100) + (layout.same_finger_im/100) + (layout.jumps/100)
         positional_effort << layout.positional_effort/100
         alternation << layout.alternation/100
         text_direction << layout.text_direction/100
@@ -121,22 +125,22 @@ module Kilo
       end
 
       return {
-        names:               names,
-        colors:              colors,
-        jumps:               jumps,
-        outward:             outward,
-        same_finger_rp:      same_finger_rp,
-        same_finger_both:    same_finger_both,
-        same_hand_effort:    same_hand_effort,
-        same_hand_effort_im: same_hand_effort_im,
-        positional_effort:   positional_effort,
-        indices:             indices,
-        middles:             middles,
-        rings:               rings,
-        pinkies:             pinkies,
-        alternation:         alternation,
-        text_direction:      text_direction,
-        score:               score,
+        names:                            names,
+        colors:                           colors,
+        jumps:                            jumps,
+        outward:                          outward,
+        same_finger_rp:                   same_finger_rp,
+        same_finger_both:                 same_finger_both,
+        same_finger_both__jumps:          same_finger_both_jumps,
+        same_finger_both__jumps__outward: same_hand_effort_im,
+        positional_effort:                positional_effort,
+        indices:                          indices,
+        middles:                          middles,
+        rings:                            rings,
+        pinkies:                          pinkies,
+        alternation:                      alternation,
+        text_direction:                   text_direction,
+        score:                            score,
       }
     end
 
@@ -165,7 +169,7 @@ module Kilo
           data[:names],
           data[:colors],
           outfile: File.join(EXPORTS_DIR, "#{db_name}.#{k}.svg"),
-          ylabel: k.to_s.capitalize,
+          ylabel: k.to_s.gsub("__", " + ").gsub("_", " ").capitalize,
           sort: true,
           assending: assending)
       end

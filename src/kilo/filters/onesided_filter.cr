@@ -37,8 +37,9 @@ module Kilo
     def pass? : Bool
       #      return (@score <= @min_hand) && (@score_same_both <=
       #        @min_same_both)
-      return ((@score_same_both + @score_jumps) <= @min_same_both) &&
-        (@score_adjacent_outward <= @min_outward)
+      #      return ((@score_same_both + @score_jumps) <= @min_same_both) &&
+      #        (@score_adjacent_outward <= @min_outward)
+      return ((@score_same_both + @score_jumps) <= @min_same_both)
     end
 
     private def reinit_scores
