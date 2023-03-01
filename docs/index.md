@@ -177,7 +177,10 @@ kilo query top100.db --limit 50 --sql sql/by-score.sql | less
 You can then query selecting the ones you like. By score or other
 criteria. Note that score is only to give an indication so you will
 either want to tweak the scoring weights/config or base your selections
-on your sql statements.
+on your sql statements. Also, note that `config.yaml` has an
+`improve_config` with values that effect how improve behaves so try
+different combinations there to get what the results you want.
+
 
 ```console
 kilo query top100.db --limit 10 --sql sql/by-hand.sql --layouts >
@@ -240,7 +243,8 @@ When improving a limit of 5 is usually enough.
 kilo improve --layouts best.txt --limit 5 sql/improve* -o improved.db
 ```
 
-Improvement is `slow`.
+Improvement is a slow process and is configured by `improve_config` key
+in your `config.yaml` file.
 
 ### Alternation
 
