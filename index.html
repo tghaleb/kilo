@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="None">
+    
+    
+    <link rel="shortcut icon" href="./img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>Kilo</title>
+    <link href="./css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="./css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="./css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/highlight.css">
+    <link href="assets/_mkdocstrings.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/bootstrap-3.3.7.min.js"></script>
+    <script src="./js/highlight.pack.js"></script>
+    
+      <script src="./js/elasticlunr.min.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '.';
+      var is_top_frame = (window === window.parent);
+        
+        var pageToc = [
+          {title: "Kilo", url: "#_top", children: [
+              {title: "About", url: "#about" },
+              {title: "Features", url: "#features" },
+              {title: "Installation", url: "#installation" },
+              {title: "Quick Start", url: "#quick-start" },
+              {title: "Usage and Workflow", url: "#usage-and-workflow" },
+              {title: "Tips", url: "#tips" },
+              {title: "Corpi", url: "#corpi" },
+              {title: "Fast generation", url: "#fast-generation" },
+              {title: "Resources", url: "#resources" },
+          ]},
+        ];
+
+    </script>
+    <script src="./js/base.js"></script> 
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+<nav class="navbar wm-page-top-frame">
+  <div class="container-fluid wm-top-container">
+    
+    <div class="wm-top-tool pull-right wm-vcenter">
+      <form class="dropdown wm-vcentered" id="wm-search-form" action="./search.html">
+        
+        <button id="wm-search-show" class="btn btn-sm btn-default" type="submit"
+          ><i class="fa fa-search" aria-hidden="true"></i></button>
+
+        <div class="input-group input-group-sm wm-top-search">
+          <input type="text" name="q" class="form-control" id="mkdocs-search-query" placeholder="Search" autocomplete="off">
+          <span class="input-group-btn" role="search">
+            
+            <button class="btn btn-default dropdown-toggle collapse" data-toggle="dropdown" type="button"><span class="caret"></span></button>
+            <ul id="mkdocs-search-results" class="dropdown-menu dropdown-menu-right"></ul>
+            <button id="wm-search-go" class="btn btn-default" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+          </span>
+        </div>
+      </form>
+    </div>
+
+    
+    <div class="wm-top-tool wm-vcenter pull-right wm-small-left">
+      <button id="wm-toc-button" type="button" class="btn btn-sm btn-default wm-vcentered"><i class="fa fa-th-list" aria-hidden="true"></i></button>
+    </div>
+
+    
+    
+
+    
+    <a href="" class="wm-top-brand wm-top-link wm-vcenter">
+      
+      <div class="wm-top-title">
+        Kilo<br>
+        
+      </div>
+    </a>
+  </div>
+</nav>
+
+  <div id="main-content" class="wm-page-top-frame">
+    
+<nav class="wm-toc-pane">
+  
+  <ul class="wm-toctree">
+        <li class="wm-toc-li wm-toc-lev1 "><a href="" class="wm-article-link wm-toc-text">Home</a>
+</li>
+        <li class="wm-toc-li wm-toc-lev1 "><a href="philosophy/" class="wm-article-link wm-toc-text">Philosophy</a>
+</li>
+  </ul>
+</nav>
+
+    <div class="wm-content-pane">
+      <iframe class="wm-article" name="article"></iframe>
+    </div>
+  </div>
+
+<div class="container-fluid wm-page-content">
+  <a name="_top"></a>
+    
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="philosophy/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="philosophy/" class="btn btn-xs btn-link">
+        Philosophy
+      </a>
+    </div>
+    
+  </div>
+
+    
+
+    <h1 id="kilo">Kilo</h1>
+<p>A tool to generate, analyze, and compare keyboard layouts.</p>
+<h2 id="about">About</h2>
+<p>Those who spend a lot of time typing are prone to hand fatigue and
+injuries. One of the top reasons for hand injuries has to do
+with the keyboard layout that most of us use. QWERTY is not optimized to
+minimize hand fatigue but since it is so prevalent we rarely consider
+other options. There is a considerable time and effort investment in switching
+to a new layout, but even when we decide to do so, we need a way to compare
+existing layouts. <code>kilo</code> is a tool to help you decide which layouts are better
+and more suited to your style and preferences. Not just that, but you can 
+create your own custom layout that caters to your needs. There are a lot
+of different views on what makes a good layout, this tool, like other
+tools, takes sides and follows a certain philosophy. But you can
+customize it in many ways using configuration files in addition to user
+SQL statements and scoring scripts. Still, before you embark on
+designing your own layout, or selecting one from what is available. You
+should decide on which factors are more important in a layout
+and the weights to assign these factors. </p>
+<p>Here is a digram showing how poor the QWERTY layout is with respect to one
+factor, row jumps:</p>
+<p><img alt="qwerty jumps" src="images/layouts.db.jumps.svg" /></p>
+<p>Take a look at <a href="philosophy/">Philosophy</a>.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Evaluates keyboard layouts.</li>
+<li>Generates keyboard layouts.</li>
+<li>Can generate layouts faster if fast filter is generated.</li>
+<li>Optimizes keyboard layouts.</li>
+<li>User can use custom <code>sql</code> to query layout data</li>
+<li>User can customize internal scoring function using a config file.</li>
+<li>User can use their own corpus (plain text or compressed <code>gz</code>/<code>zstd</code>).</li>
+<li>Generates <code>svg</code> diagrams of keyboard layouts.</li>
+<li>Generates <code>xkb</code> config for keyboard layouts.</li>
+<li>Generates typing lessons short/long.</li>
+<li>Generates charts for visual comparison between layouts.</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>Get from <a href="https://github.com/tghaleb/kilo">https://github.com/tghaleb/kilo</a>.</p>
+<p>To build you need to have <a href="https://crystal-lang.org/">crystal</a> installed on your system. In addition to 
+<code>sqlite</code> and <code>zstd</code>.</p>
+<pre><code class="language-console">make release
+</code></pre>
+<p>copy <code>bin/kilo</code> anywhere on you path and use it from there. <code>kilo</code> has
+been developed and tested on <code>Linux</code>.</p>
+<h2 id="quick-start">Quick Start</h2>
+<p>You will find a bundled fast filter for liep for a delta up to 0.1 and
+an alternation minimum up to 0.67. You can use this directly if you want
+to save some time.</p>
+<p>data/bigrams.eng_web_2014_1M-sentences.txt.yml.zst</p>
+<p>Also bigrams config for lip you can import directly.</p>
+<pre><code class="language-console">kilo init my-project
+cd my-project
+</code></pre>
+<p>Edit <code>config/config.yaml</code> and set path of corpus to use.</p>
+<pre><code class="language-console">kilo freq -f data/bigrams.eng_web_2014_1M-sentences.txt.yml.zst
+kilo gen -f data/fast.eng_web_2014_1M-sentences.txt.yml
+kilo gen --best 10 &gt; top.txt
+kilo improve --layouts top.txt --out top.db --limit 5 sql/improve_*
+kilo query top.db --sql sql/by_hand.sql --limit 100 | less
+kilo query top.db --sql sql/by_hand.sql --limit 100 --layouts | head -n 3 &gt; candidates.txt
+kilo export --create-templates candidates.txt
+kilo export --xkb --image --type maps/*.yaml
+</code></pre>
+<h2 id="usage-and-workflow">Usage and Workflow</h2>
+<p>First you initialize a project with</p>
+<pre><code class="language-console">kilo init my-project
+cd my-project
+</code></pre>
+<p>This will create the directory <code>my-project</code> with default directory
+structure and copy config files to it.</p>
+<p>Download a corpus to use. <a href="https://wortschatz.uni-leipzig.de/en/download/">https://wortschatz.uni-leipzig.de/en/download/</a> 
+has some good ones, or get one from somewhere else. After downloading it
+you will want to clean it. Edit <code>config/config.yaml</code>
+for your project and set the path to your corpus.</p>
+<p>To perform frequency analysis on your corpus,</p>
+<pre><code class="language-console">kilo freq
+kilo freq -a
+</code></pre>
+<p>It should create <code>.kilo/corpus.messagpack</code>. The <code>-a</code> option will 
+print the frequency data for you to inspect.</p>
+<p>You can also, skip downloading a corpus and import the frequency data
+from a bigrams file like the one provided in your <code>data/</code> directory.</p>
+<pre><code class="language-console">kilo freq -f path-to-bigrams-file
+</code></pre>
+<p>Now you're ready to do some work, Assuming you want to create your own
+layout using default settings</p>
+<pre><code class="language-console">kilo gen
+</code></pre>
+<p>This will take some time to generate the 600+ mil combinations of left
+and right characters. Here we are only looking for the best alternation
+and therefore are not trying to order the keys on each side, just to
+weed out unbalanced layouts, <code>balance_deta:</code> key in <code>config.yaml</code> and to
+select layouts between <code>alternation_min:</code> and <code>alternation_max:</code>. To
+speed it up look at the tip about working on a fast disk. Once
+done, you can export fast filter data,</p>
+<pre><code class="language-console">kilo gen -e &gt; fast_filter.yaml
+</code></pre>
+<p>Now if you decided to generate this data again with the same settings
+for any reason, you can run</p>
+<pre><code class="language-console">kilo gen --fast path-to-fast-filter
+</code></pre>
+<p>and it will be somewhat faster.</p>
+<p>To get the generated layouts,</p>
+<pre><code class="language-console">kilo gen --best 100 &gt; top100.txt 
+</code></pre>
+<p>the best 100 layouts in terms of alternation, but they are
+not optimized in any other way so you need to improve them,</p>
+<pre><code class="language-console">kilo improve --layouts top100.txt --out \
+top100.db --limit 5 sql/improve-*
+</code></pre>
+<p>This will improve the left and right side of the layout. It does this
+by placing the characters according to the least positional effort and then
+trying all permutations that yield the same effort score in addition to
+some smart brute-forcing. This is a slow
+process and mostly done in memory. Best layouts from left/right databases 
+are combined into the final layouts. The <code>limit</code> is used
+with each SQL select.</p>
+<pre><code class="language-console">kilo query top100.db --limit 50 --sql sql/by-score.sql | less
+</code></pre>
+<p>You can then query selecting the ones you like. By score or other
+criteria. Note that score is only to give an indication so you will
+either want to tweak the scoring weights/config or base your selections
+on your sql statements. Also, note that <code>config.yaml</code> has an
+<code>improve_config</code> with values that effect how improve behaves so try
+different combinations there to get what the results you want.</p>
+<pre><code class="language-console">kilo query top100.db --limit 10 --sql sql/by-hand.sql --layouts &gt;
+top100-hand.txt
+</code></pre>
+<p>and compare them together,</p>
+<pre><code class="language-console">kilo eval top100-hand.txt --out top100-hand.db --score
+scripts/score.rb
+kilo compare top100-hand.db
+</code></pre>
+<p>To export SVG, xkb config and typing lessons</p>
+<pre><code class="language-console">kilo export -T top100-outwards.txt
+kilo export -tmix maps/*.yaml
+</code></pre>
+<h2 id="tips">Tips</h2>
+<h3 id="fast-disk">Fast disk</h3>
+<p>When doing operations with heavy disk usage, database writes, etc. You
+will probably want to be working on a fast disk. For example, on <code>Linux</code>
+you can work on a memory disk, and then copy the data back afterwards.</p>
+<h3 id="scoring">Scoring</h3>
+<p>By default <code>kilo</code> comes with a built in scorer that you can configure
+by edition <code>data/default_scorer.yaml</code>. If you make changes in the configuration
+and want to score again, use <code>query</code> with <code>--score</code> option and it will
+update the scores.</p>
+<h3 id="sql">SQL</h3>
+<p>The provided SQL files are only examples of what you can do. You will
+probably need to change them at one point, or add your own custom ones.</p>
+<h3 id="improving-layouts">Improving layouts</h3>
+<p>We only do optimization for 32 keys, the reason for this is optimizing
+beyond this will have very little effect, if any, on the final
+results. The frequency ratio of the 1st to the 32nd character is about 51:1. Also,
+we use bitmaps that are 32bits long to do some operations. But after
+you come up with the best 32 key layout, you can edit the yaml
+template for the layout and add the rest of the characters manually.</p>
+<p>When improving weights matter but not too much. The way optimization works is 
+to calculate permutations for each group of keys of the same weight first to come-up with
+a reasonable base-line layout. The do some brute forcing trying to find
+good stats for layouts. All work is done in memory, so it will use a
+considerable amount of memory.</p>
+<p>When improving a limit of 5 is usually enough. </p>
+<pre><code class="language-console">kilo improve --layouts best.txt --limit 5 sql/improve* -o improved.db
+</code></pre>
+<p>Improvement is a slow process and is configured by <code>improve_config</code> key
+in your <code>config.yaml</code> file.</p>
+<h3 id="alternation">Alternation</h3>
+<p>Alternation is important. Layouts with higher alternation seem to
+outperform others. You can experiment with this but the top 100
+alternation scores are usually the best candidates for improvements.</p>
+<h2 id="corpi">Corpi</h2>
+<p>Instead of using a corpus you can import a bigram yaml file that is
+already available. See the <code>data/</code> directory for using one of the
+provided ones.</p>
+<h2 id="fast-generation">Fast generation</h2>
+<p>It is a good idea to do </p>
+<pre><code class="language-console">kilo gen --export-fast &gt; fast.yml
+</code></pre>
+<p>and save that <code>fast.yml</code> file with your project in case you want to
+generate again with the same settings and using the same corpus. A
+fast.yml is provided in your data directory or you decide to use 
+default settings.</p>
+<h3 id="various">Various</h3>
+<ul>
+<li>
+<p>Characters in config need to be 32 characters long</p>
+</li>
+<li>
+<p>You might sometimes get too many open files error on <code>Linux</code>, try</p>
+</li>
+</ul>
+<pre><code class="language-console">ulimit -n 97816
+</code></pre>
+<p>You can also edit <code>/etc/security/limits.conf</code> and add</p>
+<pre><code>* hard nofile 97816
+* soft nofile 97816
+</code></pre>
+<h2 id="resources">Resources</h2>
+<ul>
+<li><a href="https://wortschatz.uni-leipzig.de/en/download/">https://wortschatz.uni-leipzig.de/en/download/</a> </li>
+<li><a href="https://en.wikipedia.org/wiki/Keyboard_layout">https://en.wikipedia.org/wiki/Keyboard_layout</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Arabic_keyboard">https://en.wikipedia.org/wiki/Arabic_keyboard</a></li>
+</ul>
+
+  <br>
+    
+
+    
+    
+      
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="philosophy/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="philosophy/" class="btn btn-xs btn-link">
+        Philosophy
+      </a>
+    </div>
+    
+  </div>
+
+    <br>
+</div>
+
+<footer class="container-fluid wm-page-content">
+  <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/gristlabs/mkdocs-windmill">Windmill</a> theme by Grist Labs.</p>
+</footer>
+
+</body>
+</html>
+<!--
+MkDocs version : 1.2.3
+Build Date UTC : 2023-03-01 15:11:03.576047+00:00
+-->
